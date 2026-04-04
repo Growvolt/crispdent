@@ -530,7 +530,7 @@ const App = () => {
         </p>
         <div className="w-full">
           <div className="w-full aspect-[4/3] md:aspect-[21/9] rounded-2xl md:rounded-[2.5rem] overflow-hidden group shadow-sm border border-[#F0F0F0]">
-            <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" alt="Delicious Turkish Food" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <img src="https://i.ibb.co/rKXf4S3p/hero-starkebap.webp" alt="Delicious Turkish Food" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
           </div>
         </div>
       </section>
@@ -828,7 +828,7 @@ const App = () => {
       <h1 className="font-outfit text-3xl sm:text-4xl md:text-5xl font-medium tracking-[-0.03em] mb-6 md:mb-8 text-[#111111] text-center">{t.aboutFull.title}</h1>
       
       <div className="w-full aspect-[16/9] rounded-2xl md:rounded-[2rem] overflow-hidden mb-8 md:mb-10 shadow-sm border border-[#F0F0F0]">
-        <img src="https://i.ibb.co/Y7XXSBYD/starkebap-team.webp"  alt="Restaurant Team" className="w-full h-full object-cover" />
+        <img src="https://i.ibb.co/bg83Cwtw/About-starkebap.webp"  alt="Restaurant Team" className="w-full h-full object-cover" />
       </div>
 
       <div className="prose prose-sm md:prose-lg text-[#5A5A5A] font-light leading-relaxed max-w-none space-y-8 md:space-y-10 px-2 md:px-0">
@@ -1171,9 +1171,9 @@ const App = () => {
           
           <div className="md:col-span-6 flex flex-col items-start">
              <img 
-               src="final logo.png" 
+               src="logo.png" 
                alt="Star Kebap Logo" 
-               className="h-10 md:h-16 w-auto object-contain mb-6 md:mb-8 rounded-2xl"
+               className="h-20 md:h-16 w-auto object-contain mb-6 md:mb-8 rounded-2xl"
                onError={(e) => {
                  e.target.onerror = null; 
                  e.target.src = "https://placehold.co/200x60/141414/FFFFFF?text=STAR+KEBAP";
