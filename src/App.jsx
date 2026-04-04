@@ -392,6 +392,23 @@ const getMenuData = (lang) => {
   };
 };
 
+const getFaqs = (lang) => {
+  if (lang === 'de') {
+    return [
+      { question: 'Nehmt ihr Reservierungen an?', answer: 'Ja, wir nehmen gerne Reservierungen entgegen. Du kannst unser Online-Buchungsformular nutzen oder uns direkt anrufen.' },
+      { question: 'Seid ihr familienfreundlich?', answer: 'Absolut. Wir sind ein toller Ort für Kinder und Familien. Wir bieten Hochstühle an und haben eine spezielle Kinderkarte.' },
+      { question: 'Gibt es Parkplätze?', answer: 'Ja! Es gibt viele kostenlose Parkplätze an der Straße sowie einen kostenlosen Parkplatz in der Nähe.' },
+      { question: 'Gibt es vegetarische Optionen?', answer: 'Ja, wir haben eine Vielzahl an vegetarischen Gerichten, darunter Falafel, vegetarisches Yufka, Veggi Pide und verschiedene vegetarische Pizzen.' }
+    ];
+  }
+  return [
+    { question: 'Do you take reservations?', answer: 'Yes, we gladly accept reservations. You can use our online booking form or call us directly.' },
+    { question: 'Are you family friendly?', answer: 'Absolutely. We are a great spot for kids and families. We offer high chairs and have a dedicated kids\' menu available.' },
+    { question: 'Is there parking available?', answer: 'Yes! Parking is readily available with plenty of free street parking as well as a free parking lot nearby.' },
+    { question: 'Do you have vegetarian options?', answer: 'Yes, we have a variety of vegetarian dishes including Falafel, Vegetarian Yufka, Veggi Pide, and several vegetarian pizzas.' }
+  ];
+};
+
 const getCustomerReviews = (lang) => {
   return [
     { id: 1, name: "David", rating: 5, date: "Google Review", text: lang === 'de' ? "Sauber, hochwertiges Essen und exzellenter Kundenservice. Tolle Preise. Ein großartiger Ort für ein legeres Essen. Sehr empfehlenswert." : "Pride of ownership is the watchword here. Clean, high quality food with excellent customer service. Great prices. This is a great place to eat a casual meal. Highly recommended.", image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
@@ -422,6 +439,7 @@ const App = () => {
   // Derived state based on language
   const menuData = getMenuData(lang);
   const reviews = getCustomerReviews(lang);
+  const faqs = getFaqs(lang); // <--- FAQS HIER WIEDER HINZUGEFÜGT
 
   // Scroll to top on page change
   useEffect(() => {
@@ -568,7 +586,7 @@ const App = () => {
             </button>
           </div>
           <div className="flex-1 w-full aspect-square md:aspect-auto md:h-[350px] lg:h-[400px] rounded-2xl md:rounded-[2rem] overflow-hidden">
-            <img src="1000178837.jpg" alt="Star Kebap Team" className="w-full h-full object-cover" />
+            <img src="https://i.ibb.co/Y7XXSBYD/starkebap-team.webp" alt="Star Kebap Team" className="w-full h-full object-cover" />
           </div>
         </div>
       </section>
@@ -810,7 +828,7 @@ const App = () => {
       <h1 className="font-outfit text-3xl sm:text-4xl md:text-5xl font-medium tracking-[-0.03em] mb-6 md:mb-8 text-[#111111] text-center">{t.aboutFull.title}</h1>
       
       <div className="w-full aspect-[16/9] rounded-2xl md:rounded-[2rem] overflow-hidden mb-8 md:mb-10 shadow-sm border border-[#F0F0F0]">
-        <img src="1000178837.jpg" alt="Restaurant Team" className="w-full h-full object-cover" />
+        <img src="https://i.ibb.co/Y7XXSBYD/starkebap-team.webp"  alt="Restaurant Team" className="w-full h-full object-cover" />
       </div>
 
       <div className="prose prose-sm md:prose-lg text-[#5A5A5A] font-light leading-relaxed max-w-none space-y-8 md:space-y-10 px-2 md:px-0">
@@ -868,17 +886,17 @@ const App = () => {
         </div>
 
         {/* Hours & Contact Block (Pre-Map) */}
-        <div className="bg-[#F2F1EC] p-6 md:p-8 rounded-3xl md:rounded-[2rem] mt-6 md:mt-10 text-center border border-[#E8E7E2]">
+        <div className="bg-[#F2F1EC] p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] mt-6 md:mt-10 text-center border border-[#E8E7E2]">
           <h2 className="font-outfit text-lg md:text-2xl text-[#1A1A1A] font-medium mb-4 md:mb-5">{t.aboutFull.hoursLocationTitle}</h2>
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 mb-6 md:mb-6 text-[#5A5A5A] text-sm md:text-base">
             <div>
-              <p className="font-medium text-[#1A1A1A] mb-1">{t.aboutFull.hoursLabel}</p>
+              <p className="font-medium text-[#1A1A1A] mb-1 md:mb-2">{t.aboutFull.hoursLabel}</p>
               <p>Mo–Sa: 10:30 – 21:30</p>
               <p>So: 11:00 – 21:00</p>
             </div>
             <div className="hidden md:block w-px h-12 bg-[#E5E5E5]"></div>
             <div>
-              <p className="font-medium text-[#1A1A1A] mb-1">{t.aboutFull.locationLabel}</p>
+              <p className="font-medium text-[#1A1A1A] mb-1 md:mb-2">{t.aboutFull.locationLabel}</p>
               <p>Brunnenstraße 1, 73235 Weilheim an der Teck</p>
               <a href="tel:+4970239424183" className="hover:text-[#B26941] transition-colors">+49 7023 9424183</a>
             </div>
@@ -1052,7 +1070,7 @@ const App = () => {
       `}} />
 
       {/* --- MINIMAL LANGUAGE TOGGLE (FLOATING BOTTOM RIGHT) --- */}
-      <div className="fixed bottom-4 md:bottom-5 right-4 md:right-5 z-50 bg-white/90 backdrop-blur-md p-1 md:p-1.5 rounded-full shadow-lg border border-[#E5E5E5] flex items-center gap-1">
+      <div className="fixed bottom-5 right-5 z-50 bg-white/90 backdrop-blur-md p-1 md:p-1.5 rounded-full shadow-lg border border-[#E5E5E5] flex items-center gap-1">
         <button 
           onClick={() => setLang('de')}
           className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-bold transition-colors ${lang === 'de' ? 'bg-[#1A1A1A] text-white' : 'text-[#7A7A7A] hover:text-[#1A1A1A]'}`}
@@ -1068,37 +1086,37 @@ const App = () => {
       </div>
 
       {/* --- NAVBAR --- */}
-      <nav className="flex justify-between items-center px-4 md:px-8 py-3 md:py-5 max-w-7xl mx-auto w-full relative z-40 mt-1">
+      <nav className="flex justify-between items-center px-5 md:px-12 py-3 md:py-6 max-w-7xl mx-auto w-full relative z-50">
         <button onClick={() => navigateTo('home')} className="flex-shrink-0 transition-transform active:scale-95">
           <img 
             src="final logo.png" 
             alt="Star Kebap Logo" 
-            className="h-8 md:h-12 w-auto object-contain rounded-xl"
+            className="h-9 md:h-14 w-auto object-contain rounded-xl"
             onError={(e) => {
               e.target.onerror = null; 
               e.target.src = "https://placehold.co/120x40/000000/FFFFFF?text=STAR+KEBAP";
             }}
           />
         </button>
-        <div className="hidden md:flex gap-6 lg:gap-8 items-center font-medium text-[#5A5A5A] text-sm lg:text-base">
+        <div className="hidden md:flex gap-8 items-center font-medium text-[#5A5A5A]">
             <button onClick={() => navigateTo('menu')} className={`hover:text-[#1A1A1A] transition-colors ${currentPage === 'menu' && 'text-[#1A1A1A] border-b-2 border-[#1A1A1A]'}`}>{t.nav.menu}</button>
             <button onClick={() => navigateTo('about')} className={`hover:text-[#1A1A1A] transition-colors ${currentPage === 'about' && 'text-[#1A1A1A] border-b-2 border-[#1A1A1A]'}`}>{t.nav.about}</button>
             <button onClick={() => navigateTo('contact')} className={`hover:text-[#1A1A1A] transition-colors ${currentPage === 'contact' && 'text-[#1A1A1A] border-b-2 border-[#1A1A1A]'}`}>{t.nav.contact}</button>
-            <button onClick={() => navigateTo('reservation')} className="bg-[#1A1A1A] text-white px-4 lg:px-5 py-2 rounded-full hover:bg-black transition-colors">{t.nav.reservations}</button>
+            <button onClick={() => navigateTo('reservation')} className="bg-[#1A1A1A] text-white px-5 py-2 rounded-full hover:bg-black transition-colors">{t.nav.reservations}</button>
         </div>
         <button 
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="p-2 hover:bg-black/5 rounded-full transition-all active:scale-90 md:hidden"
         >
           <div className={`transition-transform duration-300 ${isMenuOpen ? 'rotate-90' : 'rotate-0'}`}>
-            {isMenuOpen ? <X size={26} strokeWidth={1.5} /> : <Plus size={26} strokeWidth={1.5} />}
+            {isMenuOpen ? <X size={28} strokeWidth={1.5} /> : <Plus size={28} strokeWidth={1.5} />}
           </div>
         </button>
       </nav>
 
       {/* FULLSCREEN MOBILE MENU OVERLAY */}
       <div 
-        className={`fixed inset-0 bg-[#F9F8F6] z-50 flex flex-col items-center justify-center text-2xl font-outfit font-medium tracking-tight md:hidden transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`fixed inset-0 bg-[#F9F8F6] z-40 flex flex-col items-center justify-center text-2xl font-outfit font-medium tracking-tight md:hidden transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
           isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none delay-100'
         }`}
       >
@@ -1114,7 +1132,7 @@ const App = () => {
       </div>
 
       {/* --- MAIN CONTENT AREA (ROUTING) --- */}
-      <main className="w-full flex-grow px-4 md:px-8 max-w-7xl mx-auto">
+      <main className="w-full flex-grow px-4 md:px-12">
         {currentPage === 'home' && <HomePage />}
         {currentPage === 'menu' && <MenuPage />}
         {currentPage === 'about' && <AboutPage />}
@@ -1124,17 +1142,17 @@ const App = () => {
         {/* --- GLOBAL LIVE LOCATION SECTION (Rendered on Home, About, Contact) --- */}
         {/* SECTION 7 - MAP INTEGRATION */}
         {['home', 'about', 'contact'].includes(currentPage) && (
-          <section className="py-8 md:py-12 text-center w-full">
-            <div className="relative w-full h-[350px] md:h-[550px] rounded-3xl md:rounded-[2.5rem] overflow-hidden bg-[#e5e3df] shadow-sm border border-[#F0F0F0]">
+          <section className="py-10 md:py-16 text-center max-w-7xl mx-auto w-full">
+            <div className="relative w-full h-[400px] md:h-[650px] rounded-3xl md:rounded-[3rem] overflow-hidden bg-[#e5e3df] mx-auto max-w-5xl shadow-sm border border-[#F0F0F0]">
               <iframe 
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2642.483168864947!2d9.535899912061405!3d48.61462007119044!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47999553b3b4f9db%3A0xc3fec3f0f7cf14e7!2sBrunnenstra%C3%9Fe%201%2C%2073235%20Weilheim%20an%20der%20Teck%2C%20Germany!5e0!3m2!1sen!2sus!4v1714480000000!5m2!1sen!2sus" 
                 width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="w-full h-full object-cover grayscale-[20%] opacity-90"
               ></iframe>
               
-              <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 w-[90%] md:w-auto bg-white/95 backdrop-blur-md rounded-2xl md:rounded-[2rem] p-4 md:px-10 md:py-6 text-center shadow-xl border border-white/50">
-                <p className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] uppercase text-[#5A5A5A] mb-1">{t.footer.locatedAt}</p>
-                <p className="font-outfit text-base md:text-xl font-medium mb-3 text-[#111111]">Brunnenstraße 1, Weilheim</p>
-                <a href="https://maps.google.com/?q=Brunnenstraße+1,+73235+Weilheim+an+der+Teck" target="_blank" rel="noreferrer" className="inline-block border border-[#E5E5E5] hover:border-[#B26941] text-[#B26941] px-5 md:px-6 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-colors active:scale-95">
+              <div className="absolute bottom-5 md:bottom-10 left-1/2 -translate-x-1/2 w-[90%] md:w-auto bg-white/95 backdrop-blur-md rounded-3xl md:rounded-[2rem] p-5 md:px-12 md:py-8 text-center shadow-2xl border border-white/50">
+                <p className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] uppercase text-[#5A5A5A] mb-1.5 md:mb-2">{t.footer.locatedAt}</p>
+                <p className="font-outfit text-base md:text-2xl font-medium mb-4 md:mb-5 text-[#111111]">Brunnenstraße 1, Weilheim</p>
+                <a href="https://maps.google.com/?q=Brunnenstraße+1,+73235+Weilheim+an+der+Teck" target="_blank" rel="noreferrer" className="inline-block border border-[#E5E5E5] hover:border-[#B26941] text-[#B26941] px-6 md:px-8 py-2.5 md:py-3 rounded-full text-sm md:text-base font-medium transition-colors active:scale-95">
                   {t.footer.openInMaps}
                 </a>
               </div>
@@ -1148,20 +1166,20 @@ const App = () => {
 
       {/* --- ELEGANT DARK FOOTER --- */}
       {/* SECTION 8 - FOOTER */}
-      <footer className="mt-auto bg-[#141414] text-[#F9F8F6] pt-10 md:pt-16 pb-6 md:pb-8 px-4 md:px-8 rounded-t-3xl md:rounded-t-[2.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.05)] w-full">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-8 px-2 md:px-0">
+      <footer className="mt-auto bg-[#141414] text-[#F9F8F6] pt-12 md:pt-16 pb-8 md:pb-10 px-6 md:px-12 rounded-t-3xl md:rounded-t-[3rem] shadow-[0_-10px_40px_rgba(0,0,0,0.05)] w-full">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8">
           
           <div className="md:col-span-6 flex flex-col items-start">
              <img 
                src="final logo.png" 
                alt="Star Kebap Logo" 
-               className="h-10 md:h-14 w-auto object-contain mb-5 md:mb-6 rounded-2xl"
+               className="h-10 md:h-16 w-auto object-contain mb-6 md:mb-8 rounded-2xl"
                onError={(e) => {
                  e.target.onerror = null; 
                  e.target.src = "https://placehold.co/200x60/141414/FFFFFF?text=STAR+KEBAP";
                }}
              />
-            <div className="text-sm md:text-lg font-light space-y-3 md:space-y-4 text-[#A0A0A0]">
+            <div className="text-base md:text-xl font-light space-y-4 md:space-y-6 text-[#A0A0A0]">
               <p className="hover:text-white transition-colors cursor-default">Brunnenstraße 1, 73235 Weilheim an der Teck</p>
               <div>
                 <p>Mo–Sa: 10:30–21:30</p>
@@ -1174,16 +1192,16 @@ const App = () => {
           </div>
 
           <div className="md:col-span-3">
-            <p className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] uppercase text-[#6A6A6A] mb-3 md:mb-5">{t.footer.social}</p>
-            <ul className="space-y-2 text-sm md:text-base font-light text-[#A0A0A0]">
+            <p className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] uppercase text-[#6A6A6A] mb-4 md:mb-6">{t.footer.social}</p>
+            <ul className="space-y-2 md:space-y-3 text-base md:text-lg font-light text-[#A0A0A0]">
               <li><a href="https://www.facebook.com/p/Star-Kebap-und-Pizzahaus-100064926242909/" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Facebook</a></li>
               <li><a href="https://www.instagram.com/starkebappizzahaus/" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Instagram</a></li>
             </ul>
           </div>
 
           <div className="md:col-span-3">
-            <p className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] uppercase text-[#6A6A6A] mb-3 md:mb-5">{t.footer.navigation}</p>
-            <ul className="space-y-2 text-sm md:text-base font-light text-[#A0A0A0]">
+            <p className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] uppercase text-[#6A6A6A] mb-4 md:mb-6">{t.footer.navigation}</p>
+            <ul className="space-y-2 md:space-y-3 text-base md:text-lg font-light text-[#A0A0A0]">
               <li><button onClick={() => navigateTo('home')} className="hover:text-white transition-colors">{t.nav.home}</button></li>
               <li><button onClick={() => navigateTo('menu')} className="hover:text-white transition-colors">{t.nav.menu}</button></li>
               <li><button onClick={() => navigateTo('reservation')} className="hover:text-white transition-colors">{t.nav.reservations}</button></li>
@@ -1194,7 +1212,7 @@ const App = () => {
 
         </div>
         
-        <div className="max-w-7xl mx-auto mt-8 md:mt-12 pt-4 md:pt-5 border-t border-white/10 text-center text-[#6A6A6A] text-[10px] md:text-xs">
+        <div className="max-w-7xl mx-auto mt-10 md:mt-16 pt-5 md:pt-6 border-t border-white/10 text-center text-[#6A6A6A] text-xs md:text-sm">
           <p>© {new Date().getFullYear()} Star Kebap & Pizza Haus. Inhaber: Mehmet Korkmaz. {t.footer.rights}</p>
         </div>
       </footer>
