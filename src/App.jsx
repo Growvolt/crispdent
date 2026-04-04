@@ -1091,10 +1091,11 @@ const App = () => {
           <img 
             src="final logo.png" 
             alt="Star Kebap Logo" 
-            className="h-9 md:h-14 w-auto object-contain rounded-xl"
+            className="h-16 md:h-14 w-auto object-contain rounded-xl"
             onError={(e) => {
               e.target.onerror = null; 
-              e.target.src = "https://placehold.co/120x40/000000/FFFFFF?text=STAR+KEBAP";
+              // e.target.src = "https://placehold.co/120x40/000000/FFFFFF?text=STAR+KEBAP";
+              e.target.src = "logo.png"
             }}
           />
         </button>
