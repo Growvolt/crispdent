@@ -414,7 +414,6 @@ const getCustomerReviews = (lang) => {
 
 const App = () => {
   const [lang, setLang] = useState('de'); // Default language is German
-  const [scrollProgress, setScrollProgress] = useState(0); // Progress bar state
   const t = dict[lang];
 
   const [currentPage, setCurrentPage] = useState('home');
@@ -429,18 +428,6 @@ const App = () => {
     window.scrollTo(0, 0);
     setIsMenuOpen(false);
   }, [currentPage]);
-
-  // Handle scroll progress
-  useEffect(() => {
-    const handleScroll = () => {
-      const totalScroll = document.documentElement.scrollTop || document.body.scrollTop;
-      const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const scroll = `${totalScroll / windowHeight}`;
-      setScrollProgress(scroll);
-    }
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const navigateTo = (page) => {
     setCurrentPage(page);
@@ -1063,14 +1050,6 @@ const App = () => {
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         html { scroll-behavior: smooth; }
       `}} />
-
-      {/* --- SCROLL PROGRESS BAR (TOP LINE) --- */}
-      <div className="fixed top-0 left-0 w-full h-1 z-[60] bg-black/5">
-        <div 
-          className="h-full bg-[#B26941] origin-left transition-transform duration-100 ease-out"
-          style={{ transform: `scaleX(${scrollProgress})` }}
-        />
-      </div>
 
       {/* --- MINIMAL LANGUAGE TOGGLE (FLOATING BOTTOM RIGHT) --- */}
       <div className="fixed bottom-4 md:bottom-5 right-4 md:right-5 z-50 bg-white/90 backdrop-blur-md p-1 md:p-1.5 rounded-full shadow-lg border border-[#E5E5E5] flex items-center gap-1">
