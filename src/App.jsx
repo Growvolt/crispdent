@@ -1,1225 +1,1278 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Leaf, X, Clock, MapPin, Phone, Calendar, Users, Star, Utensils, Heart, Truck, ChevronDown, Pizza, ShoppingBag } from 'lucide-react';
+'use client';
 
-// --- TRANSLATION DICTIONARY ---
-const dict = {
-  de: {
-    nav: {
-      home: "Startseite",
-      menu: "Speisekarte",
-      reservations: "Reservieren",
-      about: "Über uns",
-      contact: "Kontakt"
-    },
-    hero: {
-      eyebrow: "Ein gemütlicher Ort für türkischen Geschmack",
-      title1: "Döner & Pizza.",
-      title2: "Weilheims Beste.",
-      subtitle: "Türkische Aromen, jeden Tag frisch — vor Ort genießen, mitnehmen oder direkt an die Tür liefern lassen.",
-      btnPrimary: "Online Bestellen",
-      btnSecondary: "Speisekarte",
-      hours: "Geöffnet Mo–Sa 10:30 – 21:30 · So 11:00 – 21:00 · Brunnenstraße 1, Weilheim"
-    },
-    whatWeDo: {
-      kebabTitle: "Döner & Kebap",
-      kebabDesc: "Saftiges Fleisch vom Drehspieß, hausgemachte Saucen, genau nach deinem Geschmack zubereitet.",
-      pizzaTitle: "Handgemachte Pizza",
-      pizzaDesc: "29cm im Steinofen gebackene Pizzen. Klassisch, kreativ oder mit extra viel Dönerfleisch — du entscheidest.",
-      saladsTitle: "Frische Salate & Beilagen",
-      saladsDesc: "Knackig und frisch zubereitet. Denn gutes Essen verdient eine gute Beilage."
-    },
-    aboutSnippet: {
-      title1: "Mehr als nur eine Mahlzeit.",
-      title2: "Eine Gewohnheit.",
-      p1: "Wir versorgen Weilheim schon seit Jahren mit richtig gutem Essen — und wir hören nicht auf. Im Star Kebap & Pizza Haus wird jeder Teller mit Sorgfalt zubereitet, jeder Kunde wie ein Stammgast behandelt und jeder Besuch lässt dich darüber nachdenken, wann du wiederkommst.",
-      p2: "Lässige Atmosphäre. Gemütlicher Raum. Freundliche Gesichter. Und Essen, das tatsächlich so schmeckt, als hätte es jemand extra für dich gemacht — weil es genau so ist.",
-      btn: "Unsere Geschichte"
-    },
-    featured: {
-      eyebrow: "Empfohlen",
-      title: "Die Publikumslieblinge",
-      btn: "Komplette Speisekarte",
-      item1Desc: "Zartes Drehspießfleisch auf Brot, übergossen mit Tomatensauce und kühlem Joghurt. Ein türkischer Klassiker, perfekt zubereitet.",
-      item2Desc: "Drehspießfleisch, Paprika, Tomaten auf einem knusprigen Boden. Unser Hausstolz in jedem Bissen.",
-      item3Desc: "Geschmolzener Käse, cremige Sauce, Tomaten. Der Döner, auf einem neuen Level."
-    },
-    reviews: {
-      title: "Verlass dich nicht nur auf unser Wort",
-      subtitle: "4,8 von 5 Sternen basierend auf über 385 Google-Bewertungen"
-    },
-    orderOptions: {
-      title: "Genieße es auf deine Art",
-      dineInTitle: "Vor Ort Essen",
-      dineInDesc: "Entspann dich und bleib eine Weile. Familientische, Hochstühle, gute Stimmung.",
-      dineInBtn: "Tisch buchen",
-      takeawayTitle: "Mitnehmen",
-      takeawayDesc: "Vorbestellen oder einfach vorbeikommen. Bereit, wenn du es bist.",
-      takeawayBtn: "Telefonisch bestellen",
-      deliveryTitle: "Lieferung",
-      deliveryDesc: "Bestelle online über Lieferando — direkt an deine Tür.",
-      deliveryBtn: "Jetzt Bestellen"
-    },
-    homeFaq: {
-      eyebrow: "Antworten",
-      title: "Häufig gestellte Fragen",
-      q1: "Was sind Ihre Öffnungszeiten?",
-      a1: "Wir sind Montag bis Freitag von 10:30 bis 21:30 Uhr geöffnet, und samstags, sonntags sowie an Feiertagen von 11:00 bis 21:00 Uhr. An Feiertagen oder während saisonaler Pausen können die Öffnungszeiten gelegentlich abweichen — rufen Sie uns gerne an, um sicherzugehen.",
-      q2: "Bieten Sie Abholung und Lieferung an?",
-      a2: "Ja! Sie können Ihr Essen direkt bei uns im Restaurant abholen. Außerdem bieten wir Lieferung über Lieferando an. Bestellen Sie einfach online oder rufen Sie uns unter +49 7023 9424183 an.",
-      q3: "Wo befinden Sie sich und gibt es Parkmöglichkeiten?",
-      a3: "Sie finden uns in der Brunnenstraße 1, 73235 Weilheim an der Teck. In der Nähe stehen kostenlose Parkplätze zur Verfügung, sodass Sie jederzeit bequem bei uns vorbeikommen können.",
-      q4: "Kann ich mich auf die Qualität verlassen — was sagen Ihre Kunden?",
-      a4: "Wir sind stolz auf eine Bewertung von 4,9 Sternen auf Google Maps, basierend auf über 385 Bewertungen. Unsere Gäste loben regelmäßig die Frische der Zutaten, die großzügigen Portionen und den freundlichen Service — auf Deutsch und auf Englisch. Unser Essen und unsere Kunden sprechen für sich.",
-      q5: "Haben Sie vegetarische Optionen?",
-      a5: "Selbstverständlich! Unsere Speisekarte umfasst eine eigene vegetarische Auswahl mit Falafel-Box, Veggie-Döner und frisch zubereiteten gemischten Salaten — bereits ab 5,50 €. Teilen Sie unserem Team einfach Ihre Wünsche mit, und wir kümmern uns um den Rest."
-    },
-    menu: {
-      eyebrow: "Unser Angebot",
-      title: "Die komplette Speisekarte",
-      categories: "Entdecke unsere Kategorien",
-      items: "Artikel"
-    },
-    aboutFull: {
-      eyebrow: "Über uns",
-      title: "Unsere Geschichte",
-      intro1: "Wir sind ein türkisches Kebap- und Pizzahaus an der Brunnenstraße in Weilheim an der Teck.",
-      intro2: "Döner, Pide, Lahmacun, Pizza — täglich frisch zubereitet. Bei uns essen, mitnehmen oder liefern lassen. Ganz einfach.",
-      section2Title: "Das Essen steht im Mittelpunkt.",
-      section2p1: "Döner frisch vom Drehspieß geschnitten. Pizza von Hand geformt. Vegetarische Optionen, die tatsächlich gut schmecken. Für jeden etwas dabei — auch für die Kinder.",
-      section2p2: "Jeden Tag ab 10:30 Uhr geöffnet. Auch spät abends noch für dich da. Wenn du Hunger hast, haben wir wahrscheinlich geöffnet.",
-      section3Title: "Du kommst vorbei?",
-      section3p1: "Kein Stress. Lockere Atmosphäre, gemütliches Ambiente, Tischservice. Bring die Familie mit — wir haben Hochstühle und ein Kindermenü. Kommst du mit einer Gruppe? Kein Problem. Alleine zum Mittagessen? Auch super.",
-      section3p2: "Rollstuhlgerechter Eingang, Sitzplätze und Toilette. Reservierungen werden gerne angenommen. Kartenzahlung willkommen — Kredit- und EC-Karten funktionieren.",
-      section3p3: "Bring den Hund mit. Er darf gerne mit dir draußen sitzen.",
-      section3p4: "Kostenlose Parkplätze direkt vor der Tür — Parkplatz und Straße sind beide kostenlos.",
-      howToGet: "So kommst du an dein Essen:",
-      dineInDesc: "Setz dich, lass dich bedienen, lass dir Zeit.",
-      takeawayDesc: "Bestelle vor oder komm einfach vorbei.",
-      deliveryDesc: "Bestelle über Lieferando, direkt an deine Tür.",
-      hoursLocationTitle: "Öffnungszeiten & Standort",
-      hoursLabel: "Öffnungszeiten",
-      locationLabel: "Standort & Kontakt"
-    },
-    contact: {
-      eyebrow: "Kontakt aufnehmen",
-      title: "Kontaktiere uns",
-      location: "Standort",
-      phone: "Telefon",
-      hours: "Öffnungszeiten",
-      hoursText: "Mo - Sa: 10:30 – 21:30 Uhr\nSo: 11:00 – 21:00 Uhr",
-      faqTitle: "Häufige Fragen (FAQ)",
-      formTitle: "Schreibe uns eine Nachricht",
-      lblName: "Name",
-      lblEmail: "E-Mail",
-      lblMessage: "Nachricht",
-      plName: "Dein vollständiger Name",
-      plEmail: "deine@email.com",
-      plMessage: "Wie können wir dir helfen?",
-      btnSubmit: "Nachricht senden"
-    },
-    reservation: {
-      eyebrow: "Reservieren",
-      title: "Tisch buchen",
-      subtitle: "Planst du einen Besuch? Lass uns wissen, wann du kommst, und wir halten einen gemütlichen Platz für dich bereit.",
-      lblDate: "Datum",
-      lblTime: "Uhrzeit",
-      lblGuests: "Anzahl der Gäste",
-      optPerson: "Person",
-      optPeople: "Personen",
-      lblName: "Name",
-      lblPhone: "Telefon",
-      lblEmail: "E-Mail (Optional)",
-      lblRequests: "Besondere Wünsche (Optional)",
-      plRequests: "Hochstuhl benötigt, Allergien, usw.",
-      btnSubmit: "Reservierung anfragen",
-      note: "Wir werden deine Reservierung in Kürze per Telefon oder E-Mail bestätigen."
-    },
-    footer: {
-      locatedAt: "Standort",
-      openInMaps: "In Maps öffnen",
-      social: "Social Media",
-      navigation: "Navigation",
-      rights: "Alle Rechte vorbehalten."
-    }
-  },
-  en: {
-    nav: {
-      home: "Home",
-      menu: "Menu",
-      reservations: "Reservations",
-      about: "About Us",
-      contact: "Contact"
-    },
-    hero: {
-      eyebrow: "A cozy corner for Turkish taste",
-      title1: "Döner & Pizza.",
-      title2: "Weilheim's Finest.",
-      subtitle: "Turkish flavours, fresh every day — dine in, take away, or get it delivered to your door.",
-      btnPrimary: "Order Online",
-      btnSecondary: "View Menu",
-      hours: "Open Mon–Sat 10:30 – 21:30 · Sun 11:00 – 21:00 · Brunnenstraße 1, Weilheim"
-    },
-    whatWeDo: {
-      kebabTitle: "Döner & Kebap",
-      kebabDesc: "Juicy rotisserie meat, handmade sauces, wrapped just the way you like it.",
-      pizzaTitle: "Handmade Pizza",
-      pizzaDesc: "29cm stone-baked pizzas. Classic, creative, or loaded with döner — your call.",
-      saladsTitle: "Fresh Salads & Sides",
-      saladsDesc: "Crisp, made-to-order. Because good food deserves a good side."
-    },
-    aboutSnippet: {
-      title1: "More Than a Meal.",
-      title2: "It's a Habit.",
-      p1: "We've been feeding Weilheim the good stuff for years — and we're not stopping. At Star Kebap & Pizza Haus, every plate is made with care, every customer treated like a regular, and every visit leaves you thinking about when you're coming back.",
-      p2: "Casual vibes. Cozy space. Friendly faces. And food that actually tastes like someone made it for you — because they did.",
-      btn: "Our Story"
-    },
-    featured: {
-      eyebrow: "Featured",
-      title: "The Crowd Favourites",
-      btn: "See Full Menu",
-      item1Desc: "Tender rotisserie meat over bread, drenched in tomato sauce and cool yogurt. A Turkish classic, done right.",
-      item2Desc: "Rotisserie meat, peppers, tomatoes on a crispy base. Our house pride in every bite.",
-      item3Desc: "Melted cheese, creamy sauce, tomato. The döner, elevated."
-    },
-    reviews: {
-      title: "Don't Just Take Our Word For It",
-      subtitle: "4.9 out of 5 stars based on 385+ Google Reviews"
-    },
-    orderOptions: {
-      title: "Get It Your Way",
-      dineInTitle: "Dine In",
-      dineInDesc: "Relax, stay a while. Family tables, high chairs, good vibes.",
-      dineInBtn: "Book a table",
-      takeawayTitle: "Takeaway",
-      takeawayDesc: "Order ahead or walk in. Ready when you are.",
-      takeawayBtn: "Call to order",
-      deliveryTitle: "Delivery",
-      deliveryDesc: "Order online via Lieferando — straight to your door.",
-      deliveryBtn: "Order Now"
-    },
-    homeFaq: {
-      eyebrow: "Answers",
-      title: "Frequently Asked Questions",
-      q1: "What are your opening hours?",
-      a1: "We are open Monday to Friday from 10:30 AM to 9:30 PM, and on Saturdays, Sundays, and public holidays from 11:00 AM to 9:00 PM. Hours may occasionally vary during public holidays or seasonal breaks — feel free to call us to confirm.",
-      q2: "Do you offer takeaway and delivery?",
-      a2: "Yes! We offer takeaway directly from our restaurant. You can also order online for delivery through Lieferando. Simply visit our website or call us at +49 7023 9424183 to place your order.",
-      q3: "Where are you located and is parking available?",
-      a3: "You'll find us at Brunnenstraße 1, 73235 Weilheim an der Teck, Germany. Free parking is available nearby, making it easy to stop by for a quick meal or takeaway at any time.",
-      q4: "Can I trust the quality — what do your customers say?",
-      a4: "We hold a 4.9-star rating on Google Maps based on over 385 reviews. Our guests consistently praise the freshness of our ingredients, generous portions, and warm service — available in both German and English. We let our food and our customers speak for themselves.",
-      q5: "Do you serve vegetarian options?",
-      a5: "Absolutely! Our menu includes a dedicated vegetarian selection featuring Falafel Box, Veggie Döner, and freshly prepared mixed salads — all starting from €5.50. Just let our team know your preference and we'll take care of the rest."
-    },
-    menu: {
-      eyebrow: "Our Offerings",
-      title: "The Full Menu",
-      categories: "Explore Categories",
-      items: "Items"
-    },
-    aboutFull: {
-      eyebrow: "About Us",
-      title: "Our Story",
-      intro1: "We're a Turkish kebap and pizza place on Brunnenstraße, Weilheim an der Teck.",
-      intro2: "Döner, pide, lahmacun, pizza — made fresh daily. You eat here, take it away, or get it delivered. Simple.",
-      section2Title: "The food is the point.",
-      section2p1: "Döner carved off the rotisserie. Pizza stretched by hand. Vegetarian options that actually taste good. Something for everyone — including the kids.",
-      section2p2: "Open from 10:30 every day. Late-night food available. If you're hungry, we're probably open.",
-      section3Title: "Coming in?",
-      section3p1: "No stress. Casual place, cozy feel, table service. Bring the family — we've got high chairs and a kids' menu. Coming with a group? No problem. Solo lunch? Also fine.",
-      section3p2: "Wheelchair-accessible entrance, seating, and toilet. Reservations accepted. Cards welcome — credit and debit both work.",
-      section3p3: "Bring the dog. They can sit outside with you.",
-      section3p4: "Free parking right outside — lot and street both free.",
-      howToGet: "How to get your food:",
-      dineInDesc: "Sit down, get served, take your time.",
-      takeawayDesc: "Order ahead or walk in.",
-      deliveryDesc: "Order via Lieferando, straight to your door.",
-      hoursLocationTitle: "Hours & Location",
-      hoursLabel: "Hours",
-      locationLabel: "Location & Contact"
-    },
-    contact: {
-      eyebrow: "Get in touch",
-      title: "Contact Us",
-      location: "Location",
-      phone: "Phone",
-      hours: "Hours",
-      hoursText: "Mon - Sat: 10:30 am – 9:30 pm\nSun: 11:00 am – 9:00 pm",
-      faqTitle: "Quick FAQ",
-      formTitle: "Send us a message",
-      lblName: "Name",
-      lblEmail: "Email",
-      lblMessage: "Message",
-      plName: "Your full name",
-      plEmail: "your@email.com",
-      plMessage: "How can we help you?",
-      btnSubmit: "Send Message"
-    },
-    reservation: {
-      eyebrow: "Reserve",
-      title: "Book a table",
-      subtitle: "Planning a visit? Let us know when you're coming and we'll have a cozy spot ready for you.",
-      lblDate: "Date",
-      lblTime: "Time",
-      lblGuests: "Number of Guests",
-      optPerson: "Person",
-      optPeople: "People",
-      lblName: "Name",
-      lblPhone: "Phone",
-      lblEmail: "Email (Optional)",
-      lblRequests: "Special Requests (Optional)",
-      plRequests: "High chair needed, allergies, etc.",
-      btnSubmit: "Request Reservation",
-      note: "We will confirm your reservation via phone or email shortly."
-    },
-    footer: {
-      locatedAt: "Located at",
-      openInMaps: "Open in Maps",
-      social: "Social",
-      navigation: "Navigation",
-      rights: "All rights reserved."
-    }
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  ShoppingBag, ArrowRight, Menu, ArrowDown, Star, Plus, Box, 
+  Triangle, Stethoscope, ShieldCheck, Baby, LayoutGrid, Sparkles, 
+  HeartPulse, CheckCircle, Facebook, Linkedin, Instagram, ChevronDown, 
+  ChevronLeft, ChevronRight, Check, HeartHandshake, Microscope, 
+  Smile, Activity 
+} from 'lucide-react';
+
+const globalCss = `
+  /* ==========================================================================
+      WEB SIZING — COMPLETE REFERENCE SYSTEM
+      ========================================================================== */
+  :root {
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --navy: #0A1628;
+      --navy-light: #152A4A;
+      --white: #FFFFFF;
+      --bg-light: #F4F4F5;
+      --text-main: #1F2937;
+      --text-muted: #6B7280;
+      --border: #E5E7EB;
+      --green: #10B981;
+      --glass-bg: rgba(255, 255, 255, 0.9);
+
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md-s: 12px;
+      --spacing-md: 16px;
+      --spacing-md-l: 24px;
+      --spacing-lg: 32px;
+      --spacing-xl: 48px;
+      --spacing-2xl: 64px;
+      --spacing-3xl: 80px;
+      --spacing-4xl: 120px;
+
+      --shadow-sm:  0 1px 4px rgba(0,0,0,0.06);
+      --shadow-md:  0 4px 16px rgba(0,0,0,0.08);
+      --shadow-lg:  0 8px 32px rgba(0,0,0,0.10);
+      --shadow-xl:  0 16px 48px rgba(0,0,0,0.12);
+      --shadow-card-mobile: 0 2px 12px rgba(0,0,0,0.06);
+      --shadow-card-desktop: 0 4px 24px rgba(0,0,0,0.08);
+
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-card-mobile: 12px;
+      --radius-card-desktop: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 999px;
+
+      --z-dropdown: 10;
+      --z-sticky: 20;
+      --z-overlay: 30;
+      --z-modal: 40;
+      --z-toast: 50;
+      --z-alert: 100;
+
+      --transition-smooth: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
   }
-};
 
-// --- DATA FROM RESEARCH REPORT (BILINGUAL) ---
-const getMenuData = (lang) => {
-  return {
-    [lang === 'de' ? "SALATE" : "SALADS"]: [
-      { name: 'Salat Tonno', desc: lang === 'de' ? 'Mit Thunfisch' : 'With tuna', price: '7.50 €', isVeg: false },
-      { name: 'Gemischter Salat', desc: lang === 'de' ? 'Mit Sauce' : 'With house dressing', price: '6.50 €', isVeg: true },
-      { name: 'Krautsalat', desc: lang === 'de' ? 'Weiß- und Rotkraut' : 'Red and white cabbage', price: '5.50 €', isVeg: true },
-    ],
-    "PIZZA (Ø 29cm)": [
-      { name: 'Pizza Star', desc: lang === 'de' ? 'Mit Drehspießfleisch, Paprika und Tomaten' : 'With rotisserie meat, peppers, and tomatoes', price: '12.00 €', isVeg: false },
-      { name: 'Pizza Döner Scheibenfleisch', desc: lang === 'de' ? 'Mit zartem Scheibenfleisch' : 'With tender sliced beef', price: '12.50 €', isVeg: false },
-      { name: 'Pizza Döner Hackspießfleisch', desc: lang === 'de' ? 'Mit Hackspießfleisch' : 'With minced rotisserie meat', price: '12.00 €', isVeg: false },
-      { name: 'Pizza Sucuk', desc: lang === 'de' ? 'Mit türkischer Knoblauchwurst' : 'With Turkish garlic sausage', price: '12.00 €', isVeg: false },
-      { name: 'Pizza Neu', desc: lang === 'de' ? 'Mit Eiern und türkischer Knoblauchwurst' : 'With eggs and Turkish garlic sausage', price: '12.00 €', isVeg: false },
-      { name: 'Pizza Gemischt', desc: lang === 'de' ? 'Mit Putenschinken, Rindersalami, Champignons und Paprika' : 'With turkey ham, beef salami, mushrooms, and peppers', price: '12.00 €', isVeg: false },
-      { name: 'Pizza Hawaii', desc: lang === 'de' ? 'Mit Ananas und Putenschinken' : 'With pineapple and turkey ham', price: '11.50 €', isVeg: false },
-      { name: 'Pizza Tonno', desc: lang === 'de' ? 'Mit Thunfisch und Zwiebeln' : 'With tuna and onions', price: '11.50 €', isVeg: false },
-      { name: 'Pizza Milano', desc: lang === 'de' ? 'Mit Spinat und Weichkäse' : 'With spinach and soft cheese', price: '11.50 €', isVeg: true },
-      { name: 'Pizza Vegetarisch', desc: lang === 'de' ? 'Mit Spinat, Champignons, Tomaten und Paprika' : 'With spinach, mushrooms, tomatoes, and peppers', price: '11.00 €', isVeg: true },
-      { name: 'Pizza Rindersalami und Putenschinken', desc: lang === 'de' ? 'Mit Rindersalami und Putenschinken' : 'With beef salami and turkey ham', price: '11.00 €', isVeg: false },
-      { name: 'Pizza 3 Käse', desc: lang === 'de' ? 'Mit Weichkäse und Mozzarella' : 'With soft cheese and mozzarella', price: '11.50 €', isVeg: true },
-      { name: 'Pizza Artischocken', desc: lang === 'de' ? 'Mit Artischocken' : 'With artichokes', price: '11.50 €', isVeg: true },
-      { name: 'Pizza Funghi', desc: lang === 'de' ? 'Mit frischen Champignons' : 'With fresh mushrooms', price: '10.50 €', isVeg: true },
-      { name: 'Pizza Peperoni', desc: lang === 'de' ? 'Mit Peperoni' : 'With pepperoni', price: '10.50 €', isVeg: true },
-      { name: 'Pizza Zwiebeln', desc: lang === 'de' ? 'Mit Zwiebeln' : 'With onions', price: '10.50 €', isVeg: true },
-      { name: 'Pizza Oliven', desc: lang === 'de' ? 'Mit Oliven' : 'With olives', price: '10.50 €', isVeg: true },
-      { name: 'Pizza Mais', desc: lang === 'de' ? 'Mit Mais' : 'With corn', price: '10.50 €', isVeg: true },
-      { name: 'Pizza Rindersalami', desc: lang === 'de' ? 'Mit Rindersalami' : 'With beef salami', price: '10.50 €', isVeg: false },
-      { name: 'Pizza Putenschinken', desc: lang === 'de' ? 'Mit Putenschinken' : 'With turkey ham', price: '10.50 €', isVeg: false },
-      { name: 'Pizza Paprika', desc: lang === 'de' ? 'Mit frischer Paprika' : 'With fresh bell peppers', price: '10.50 €', isVeg: true },
-      { name: 'Pizza Margherita', desc: lang === 'de' ? 'Klassisch mit Tomatensauce und Käse' : 'Classic with tomato sauce and cheese', price: '9.50 €', isVeg: true },
-    ],
-    "CALZONE": [
-      { name: 'Calzone Star', desc: lang === 'de' ? 'Mit Dönerfleisch, Paprika und Tomaten' : 'With döner meat, peppers, and tomatoes', price: '11.50 €', isVeg: false },
-      { name: 'Calzone Döner Scheibenfleisch', desc: lang === 'de' ? 'Mit Rind-Scheibenfleisch' : 'With sliced beef', price: '11.50 €', isVeg: false },
-      { name: 'Calzone 3 Käse', desc: lang === 'de' ? 'Mit Käse, Weichkäse und Mozzarella' : 'With cheese, soft cheese, and mozzarella', price: '11.50 €', isVeg: true },
-      { name: 'Calzone Veggi', desc: lang === 'de' ? 'Mit Spinat, Tomaten, Champignons und Paprika' : 'With spinach, tomatoes, mushrooms, and peppers', price: '11.50 €', isVeg: true },
-      { name: 'Calzone mit Hackspießfleisch', desc: lang === 'de' ? 'Mit Döner-Hackspießfleisch' : 'With minced döner meat', price: '10.50 €', isVeg: false },
-      { name: 'Calzone mit Spinat und Tomaten', desc: lang === 'de' ? 'Mit Spinat und Tomaten' : 'With spinach and tomatoes', price: '10.00 €', isVeg: true },
-      { name: 'Calzone mit Weichkäse und Oliven', desc: lang === 'de' ? 'Mit Weichkäse und Oliven' : 'With soft cheese and olives', price: '10.00 €', isVeg: true },
-      { name: 'Calzone mit Rindersalami', desc: lang === 'de' ? 'Mit Rindersalami' : 'With beef salami', price: '10.00 €', isVeg: false },
-    ],
-    "PIDE": [
-      { name: 'Pide Star', desc: lang === 'de' ? 'Mit Dönerfleisch, Paprika und Tomaten' : 'With döner meat, peppers, and tomatoes', price: '12.00 €', isVeg: false },
-      { name: 'Pide Döner Scheibenfleisch', desc: lang === 'de' ? 'Mit Rind-Scheibenfleisch' : 'With sliced beef', price: '12.00 €', isVeg: false },
-      { name: 'Pide Veggi', desc: lang === 'de' ? 'Mit Spinat, Tomaten, Paprika und Champignons' : 'With spinach, tomatoes, peppers, and mushrooms', price: '12.00 €', isVeg: true },
-      { name: 'Pide mit Hackfleisch, Käse und Ei', desc: lang === 'de' ? 'Mit Hackfleisch, Käse und Ei' : 'With minced meat, cheese, and egg', price: '11.00 €', isVeg: false },
-      { name: 'Pide mit Sucuk', desc: lang === 'de' ? 'Mit türkischer Knoblauchwurst' : 'With Turkish garlic sausage', price: '11.00 €', isVeg: false },
-      { name: 'Pide Döner Hackspießfleisch', desc: lang === 'de' ? 'Mit Döner-Hackspießfleisch' : 'With minced döner meat', price: '11.00 €', isVeg: false },
-      { name: 'Pide mit Spinat, Käse und Ei', desc: lang === 'de' ? 'Mit Spinat, Käse und Ei' : 'With spinach, cheese, and egg', price: '11.00 €', isVeg: true },
-      { name: 'Pide 3 Käse', desc: lang === 'de' ? 'Mit Käse, Weichkäse und Mozzarella' : 'With cheese, soft cheese, and mozzarella', price: '11.00 €', isVeg: true },
-      { name: 'Pide mit Hackfleisch und Käse', desc: lang === 'de' ? 'Mit Hackfleisch und Käse' : 'With minced meat and cheese', price: '10.50 €', isVeg: false },
-      { name: 'Pide mit Spinat und Käse', desc: lang === 'de' ? 'Mit Spinat und Käse' : 'With spinach and cheese', price: '10.50 €', isVeg: true },
-      { name: 'Pide mit Käse und Weichkäse', desc: lang === 'de' ? 'Mit Käse und Weichkäse' : 'With cheese and soft cheese', price: '9.50 €', isVeg: true },
-      { name: 'Pide mit Hackfleisch', desc: lang === 'de' ? 'Mit Hackfleisch' : 'With minced meat', price: '9.50 €', isVeg: false },
-    ],
-    [lang === 'de' ? "DÖNER KEBAP (HACKSPIEß)" : "DÖNER KEBAP (MINCED)"]: [
-      { name: 'Döner Teller Hackspießfleisch', desc: lang === 'de' ? 'Mit Salat, Sauce und einer Beilage nach Wahl' : 'With salad, sauce, and a side of choice', price: '14.00 €', isVeg: false },
-      { name: 'Iskender Kebap Hackspießfleisch', desc: lang === 'de' ? 'Mit Brotstücken, Tomatensauce und Joghurtsauce' : 'With bread pieces, tomato sauce, and yogurt sauce', price: '14.00 €', isVeg: false },
-      { name: 'Döner überbacken Tomatensauce', desc: lang === 'de' ? 'Mit Sahne, Champignons, Paprika und Käse überbacken' : 'Baked with cream, mushrooms, peppers, and cheese', price: '14.00 €', isVeg: false },
-      { name: 'Döner überbacken Hackspießfleisch', desc: lang === 'de' ? 'Mit Käse, Tomatensauce und Sahne überbacken' : 'Baked with cheese, tomato sauce, and cream', price: '13.00 €', isVeg: false },
-      { name: 'Döner Box Hackspießfleisch', desc: lang === 'de' ? 'Mit Sauce und einer Beilage nach Wahl' : 'With sauce and a side of choice', price: '9.00 €', isVeg: false },
-      { name: 'Yufka Döner Hackspießfleisch', desc: lang === 'de' ? 'Gerollt im dünnen Teig' : 'Rolled in thin dough', price: '9.00 €', isVeg: false },
-      { name: 'Döner Kebap Hackspießfleisch', desc: lang === 'de' ? 'Klassisch im Fladenbrot' : 'Classic in flatbread', price: '8.00 €', isVeg: false },
-      { name: 'Döner 1/2 Hackspießfleisch', desc: lang === 'de' ? 'Kleiner Döner im Fladenbrot' : 'Small döner in flatbread', price: '6.00 €', isVeg: false },
-    ],
-    [lang === 'de' ? "DÖNER KEBAP (SCHEIBENFLEISCH)" : "DÖNER KEBAP (SLICED BEEF)"]: [
-      { name: 'Dönerteller Scheibenfleisch', desc: lang === 'de' ? 'Mit Salat, Sauce und einer Beilage' : 'With salad, sauce, and a side', price: '15.00 €', isVeg: false },
-      { name: 'Iskender vom Scheibenfleisch', desc: lang === 'de' ? 'Mit Tomatensauce, Joghurtsauce und Brotstücken' : 'With tomato sauce, yogurt sauce, and bread pieces', price: '15.00 €', isVeg: false },
-      { name: 'Döner Überbacken', desc: lang === 'de' ? 'Mit Käse, Champignons und Paprika überbacken' : 'Baked with cheese, mushrooms, and peppers', price: '15.00 €', isVeg: false },
-      { name: 'Yufka Scheibenfleisch', desc: lang === 'de' ? 'Gerollt im dünnen Teig' : 'Rolled in thin dough', price: '10.00 €', isVeg: false },
-      { name: 'Dönerbox Scheibenfleisch', desc: lang === 'de' ? 'Mit Sauce und einer Beilage nach Wahl' : 'With sauce and a side of choice', price: '9.50 €', isVeg: false },
-      { name: 'Döner Scheibenfleisch', desc: lang === 'de' ? 'Im Fladenbrot' : 'In flatbread', price: '9.00 €', isVeg: false },
-      { name: 'Döner Klein Scheibenfleisch', desc: lang === 'de' ? 'Kleiner Döner' : 'Small döner', price: '7.00 €', isVeg: false },
-    ],
-    [lang === 'de' ? "FALAFEL & VEGETARISCH" : "FALAFEL & VEGETARIAN"]: [
-      { name: 'Falafel Teller', desc: lang === 'de' ? 'Mit Salat und einer Beilage nach Wahl' : 'With salad and a side of choice', price: '11.00 €', isVeg: true },
-      { name: 'Falafel Box', desc: lang === 'de' ? 'Mit einer Beilage nach Wahl' : 'With a side of choice', price: '7.50 €', isVeg: true },
-      { name: 'Falafel im Yufka', desc: lang === 'de' ? 'Knusprige Falafel gerollt im Yufka' : 'Crispy falafel rolled in yufka', price: '7.50 €', isVeg: true },
-      { name: 'Yufka (vegetarisch)', desc: lang === 'de' ? 'Vegetarisch gerollt im Yufka' : 'Vegetarian rolled in yufka', price: '7.50 €', isVeg: true },
-      { name: 'Falafel im Fladenbrot', desc: lang === 'de' ? 'Knusprige Falafel im Fladenbrot' : 'Crispy falafel in flatbread', price: '6.50 €', isVeg: true },
-      { name: 'Döner (vegetarisch)', desc: lang === 'de' ? 'Vegetarischer Döner im Fladenbrot' : 'Vegetarian döner in flatbread', price: '6.50 €', isVeg: true },
-    ],
-    "LAHMACUN": [
-      { name: 'Lahmacun Teller Scheibenfleisch', desc: lang === 'de' ? 'Mit Salat, Sauce und Scheibenfleisch' : 'With salad, sauce, and sliced beef', price: '13.00 €', isVeg: false },
-      { name: 'Lahmacun Teller Hackspießfleisch', desc: lang === 'de' ? 'Mit Salat, Sauce und Hackspießfleisch' : 'With salad, sauce, and minced meat', price: '12.00 €', isVeg: false },
-      { name: 'Lahmacun Spezial Scheibenfleisch', desc: lang === 'de' ? 'Mit Salat, Sauce und Scheibenfleisch gerollt' : 'Rolled with salad, sauce, and sliced beef', price: '11.00 €', isVeg: false },
-      { name: 'Lahmacun Spezial Hackspießfleisch', desc: lang === 'de' ? 'Mit Salat, Sauce und Hackspießfleisch gerollt' : 'Rolled with salad, sauce, and minced meat', price: '10.00 €', isVeg: false },
-      { name: 'Lahmacun mit Salat', desc: lang === 'de' ? 'Mit frischem Salat gerollt' : 'Rolled with fresh salad', price: '8.00 €', isVeg: true },
-      { name: 'Lahmacun', desc: lang === 'de' ? 'Türkische Pizza (ohne extra Belag)' : 'Turkish Pizza (no extra toppings)', price: '5.50 €', isVeg: false },
-    ],
-    "FAST FOOD": [
-      { name: 'Putenschnitzel Teller', desc: lang === 'de' ? 'Mit Pommes frites, Salat und Sauce' : 'With french fries, salad, and sauce', price: '12.00 €', isVeg: false },
-      { name: 'Nuggets Yufka', desc: lang === 'de' ? 'Mit Salat und Pommes frites im Yufka gerollt' : 'With salad and french fries rolled in yufka', price: '8.50 €', isVeg: false },
-      { name: 'Chicken Nuggets (6 Stück)', desc: lang === 'de' ? 'Mit Pommes frites' : 'With french fries', price: '7.00 €', isVeg: false },
-      { name: 'Pommes frites', desc: lang === 'de' ? 'Mit Sauce nach Wahl' : 'With sauce of choice', price: '4.50 €', isVeg: true },
-    ],
-    [lang === 'de' ? "GETRÄNKE" : "DRINKS"]: [
-      { name: 'Uludag Gazoz (0,5l)', desc: lang === 'de' ? 'Erfrischende türkische Limonade (EINWEG)' : 'Refreshing Turkish lemonade', price: '3.50 €', isVeg: true },
-      { name: 'Red Bull (0,25l)', desc: lang === 'de' ? 'Energy Drink (EINWEG)' : 'Energy Drink', price: '3.50 €', isVeg: true },
-      { name: 'Coca-Cola / Fanta / Sprite / Mezzo Mix (0,5l)', desc: lang === 'de' ? 'PET Flasche (EINWEG)' : 'PET Bottle', price: '3.50 €', isVeg: true },
-      { name: 'Coca-Cola / Fanta / Sprite / Mezzo Mix (0,33l)', desc: lang === 'de' ? 'Dose (EINWEG)' : 'Can', price: '3.00 €', isVeg: true },
-      { name: 'Fresh Ayran (0,25l)', desc: lang === 'de' ? 'Türkisches Joghurtgetränk' : 'Turkish yogurt drink', price: '2.50 €', isVeg: true },
-      { name: 'ViO spritzig / Christel Wasser still (0,5l)', desc: lang === 'de' ? 'Mineralwasser (EINWEG)' : 'Mineral water', price: '2.50 €', isVeg: true },
-      { name: 'Wizzi Drinks (0,5l)', desc: lang === 'de' ? 'Exotic, Pfirsich, Kaktusfeige, Lemon, Kirsche-Zitrone, Granatapfel, Wassermelone' : 'Exotic, Peach, Cactus Fig, Lemon, Cherry-Lime, Pomegranate, Watermelon', price: '2.50 €', isVeg: true },
-    ]
-  };
-};
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
 
-const getFaqs = (lang) => {
-  if (lang === 'de') {
-    return [
-      { question: 'Nehmt ihr Reservierungen an?', answer: 'Ja, wir nehmen gerne Reservierungen entgegen. Du kannst unser Online-Buchungsformular nutzen oder uns direkt anrufen.' },
-      { question: 'Seid ihr familienfreundlich?', answer: 'Absolut. Wir sind ein toller Ort für Kinder und Familien. Wir bieten Hochstühle an und haben eine spezielle Kinderkarte.' },
-      { question: 'Gibt es Parkplätze?', answer: 'Ja! Es gibt viele kostenlose Parkplätze an der Straße sowie einen kostenlosen Parkplatz in der Nähe.' },
-      { question: 'Gibt es vegetarische Optionen?', answer: 'Ja, wir haben eine Vielzahl an vegetarischen Gerichten, darunter Falafel, vegetarisches Yufka, Veggi Pide und verschiedene vegetarische Pizzen.' }
-    ];
+  body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+      background-color: var(--white);
+      font-size: 15px;
+      line-height: 1.6;
+      letter-spacing: 0;
+      overflow-x: hidden;
+      opacity: 0;
+      transition: opacity 0.8s ease-in;
   }
-  return [
-    { question: 'Do you take reservations?', answer: 'Yes, we gladly accept reservations. You can use our online booking form or call us directly.' },
-    { question: 'Are you family friendly?', answer: 'Absolutely. We are a great spot for kids and families. We offer high chairs and have a dedicated kids\' menu available.' },
-    { question: 'Is there parking available?', answer: 'Yes! Parking is readily available with plenty of free street parking as well as a free parking lot nearby.' },
-    { question: 'Do you have vegetarian options?', answer: 'Yes, we have a variety of vegetarian dishes including Falafel, Vegetarian Yufka, Veggi Pide, and several vegetarian pizzas.' }
-  ];
-};
+  body.loaded { opacity: 1; }
 
-const getCustomerReviews = (lang) => {
-  return [
-    { id: 1, name: "David", rating: 5, date: "Google Review", text: lang === 'de' ? "Sauber, hochwertiges Essen und exzellenter Kundenservice. Tolle Preise. Ein großartiger Ort für ein legeres Essen. Sehr empfehlenswert." : "Pride of ownership is the watchword here. Clean, high quality food with excellent customer service. Great prices. This is a great place to eat a casual meal. Highly recommended.", image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
-    { id: 2, name: "Nick Weessies", rating: 5, date: "Google Review", text: lang === 'de' ? "Leckerer Kebab, frischer Salat, knusprige Pommes und vor allem: super freundliche Mitarbeiter. Ich würde diesen Ort absolut empfehlen." : "Delicious kebab, fresh salad, crispy pommes frites and most importantly; super friendly employees. I would absolutely recommend this place.", image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
-    { id: 3, name: "Senkotenkoo", rating: 5, date: "Google Review", text: lang === 'de' ? "Bester Kebab der Stadt. Die Jungs sind immer nett und lächeln. Sie machen köstliche Pide und alles von der Karte 😊" : "Best kebap in city, The guys are so kind and smiling everytime. They are making delicious pide and everything from menu 😊", image: "https://images.unsplash.com/photo-1593504049359-74330189a345?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
-    { id: 4, name: "S Harmsen", rating: 4, date: "Google Review", text: lang === 'de' ? "Günstig und lecker. Hat neben Falafel auch noch andere vegetarische Optionen." : "Cheap and tasty. Also has vegetarian options other than falafel.", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
-    { id: 5, name: "tom darrohn", rating: 5, date: "Google Review", text: lang === 'de' ? "Köstliches und frisches Essen, freundlicher Service!" : "Delicious and fresh food, friendly service!", image: "https://images.unsplash.com/photo-1628840042765-356cda07504e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
-    { id: 6, name: "Catherine L", rating: 4, date: "Google Review", text: lang === 'de' ? "Guter Döner zu einem fairen Preis." : "Good Döner with reasonable price.", image: "https://images.unsplash.com/photo-1529042410759-befb1204b468?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
-    { id: 7, name: "Milusic Dalibor", rating: 4, date: "Google Review", text: "Ok", image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
-    { id: 8, name: "Tomas Mitura", rating: 5, date: "Google Review", text: lang === 'de' ? "Bester Kebab" : "Best kebab", image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
-    { id: 9, name: "Arete MassageSpa", rating: 5, date: "Google Review", text: lang === 'de' ? "Mein erstes Mal Kebab in Weilheim. Das Essen war sehr lecker und frisch, und alles wurde mit großer Sorgfalt zubereitet. Der Ort war sehr sauber und die Atmosphäre einladend." : "It was my first time trying kebab in Weilheim The food was very tasty and fresh, and everything was prepared with great care. The place was very clean and the atmosphere was welcoming.", image: "https://images.unsplash.com/photo-1554679665-f5537f187268?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
-    { id: 10, name: "N “Mr Writer” Sb", rating: 5, date: "Google Review", text: lang === 'de' ? "Unglaublich freundliches Personal – der Kunde ist hier wirklich König! Exzellentes Preis-Leistungs-Verhältnis, aber vor allem: absolut köstlich." : "Incredibly friendly staff – the customer is truly king here! Excellent value for money, but most importantly: absolutely delicious.", image: "https://images.unsplash.com/photo-1606502973842-f64bc2785fe5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
-    { id: 11, name: "Justin Olnhoff", rating: 5, date: "Google Review", text: lang === 'de' ? "Unrealistisch gut und ziemlich günstig. 100% empfehlenswert." : "Unreal good, and quite cheap. Amazing service in English. 100% recommend" },
-    { id: 12, name: "Robert Dall Osteria", rating: 5, date: "Google Review", text: "Service: 5/5" },
-    { id: 13, name: "Anette Sen", rating: 5, date: "Google Review", text: lang === 'de' ? "Ich komme aus Aschaffenburg und wann immer ich dort bin, esse ich sofort einen Döner. Den besten Döner gibt es hier im Star Kebap Haus, mit sehr freundlichem Personal." : "I come from Aschaffenburg and whenever I'm there I always go for a doner kebab at once, and only the best doner kebab can be found here at Star Kebap Haus, with very friendly staff." },
-    { id: 14, name: "Codrut Calinoiu", rating: 5, date: "Google Review", text: lang === 'de' ? "Lecker" : "delicious" },
-    { id: 15, name: "Benjamin Z", rating: 5, date: "Google Review", text: "Super" },
-  ];
-};
+  @media (min-width: 768px) { body { font-size: 16px; } }
+  @media (min-width: 1024px) { body { font-size: 17px; } }
 
-const App = () => {
-  const [lang, setLang] = useState('de'); // Default language is German
-  const t = dict[lang];
+  h1, h2, h3, h4, h5, h6 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--navy);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.15;
+  }
+  @media (min-width: 1024px) { h1, h2, h3, h4, h5, h6 { letter-spacing: -0.02em; } }
+  p { max-width: 100%; }
+  @media (min-width: 1024px) { p { max-width: 75ch; } }
+  a { text-decoration: none; color: inherit; }
+  ul { list-style: none; }
+  img { max-width: 100%; height: auto; display: block; object-fit: cover; }
 
-  const [currentPage, setCurrentPage] = useState('home');
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  .container { width: 100%; margin: 0 auto; padding: 0 16px; max-width: 1240px; }
+  @media (min-width: 768px) { .container { padding: 0 24px; } }
+  @media (min-width: 1024px) { .container { padding: 0 32px; } }
 
-  // Derived state based on language
-  const menuData = getMenuData(lang);
-  const reviews = getCustomerReviews(lang);
-  const faqs = getFaqs(lang); // <--- FAQS HIER WIEDER HINZUGEFÜGT
+  .section { padding: 56px 0; position: relative; }
+  @media (min-width: 768px) { .section { padding: 80px 0; } }
+  @media (min-width: 1024px) { .section { padding: 100px 0; } }
 
-  // Scroll to top on page change
+  .bg-light { background-color: var(--bg-light); }
+  .text-center { text-align: center; }
+
+  .grid { display: grid; gap: 16px; }
+  @media (min-width: 768px) { .grid { gap: 24px; } }
+  @media (min-width: 1024px) { .grid { gap: 28px; } }
+
+  .grid-cols-2 { grid-template-columns: 1fr; }
+  @media (min-width: 768px) { .grid-cols-2 { grid-template-columns: 1fr 1fr; } }
+  .grid-cols-3 { grid-template-columns: 1fr; }
+  @media (min-width: 768px) { .grid-cols-3 { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1024px) { .grid-cols-3 { grid-template-columns: repeat(3, 1fr); } }
+  .grid-cols-4 { grid-template-columns: 1fr; }
+  @media (min-width: 768px) { .grid-cols-4 { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .grid-cols-4 { grid-template-columns: repeat(4, 1fr); } }
+  .grid-cols-appoint { grid-template-columns: 1fr; }
+  @media (min-width: 1024px) { .grid-cols-appoint { grid-template-columns: 1fr 1.2fr; gap: var(--spacing-3xl); } }
+
+  .text-display, .text-h1 { font-size: 32px; line-height: 1.15; }
+  .text-h2 { font-size: 24px; line-height: 1.15; }
+  .text-h3 { font-size: 20px; line-height: 1.15; }
+  .text-h4 { font-size: 18px; line-height: 1.15; }
+  .text-large { font-size: 16px; }
+  .text-small { font-size: 13px; }
+
+  @media (min-width: 768px) {
+      .text-display, .text-h1 { font-size: 44px; }
+      .text-h2 { font-size: 32px; }
+      .text-h3 { font-size: 24px; }
+      .text-h4 { font-size: 20px; }
+  }
+  @media (min-width: 1024px) {
+      .text-display, .text-h1 { font-size: 60px; }
+      .text-h2 { font-size: 44px; }
+      .text-h3 { font-size: 28px; }
+      .text-h4 { font-size: 24px; }
+      .text-large { font-size: 18px; }
+      .text-small { font-size: 14px; }
+  }
+
+  .section-header { margin-bottom: var(--spacing-xl); }
+  @media (min-width: 1024px) { .section-header { margin-bottom: var(--spacing-3xl); } }
+  .section-subtitle { margin: 0 auto; color: var(--text-muted); }
+  
+  .page-header { 
+      padding: 160px 0 80px; 
+      background: linear-gradient(180deg, #F8FAFC 0%, var(--white) 100%); 
+      text-align: center; 
+      position: relative; 
+      overflow: hidden;
+      border-bottom: 1px solid rgba(229, 231, 235, 0.4);
+  }
+  @media (min-width: 1024px) { .page-header { padding: 200px 0 100px; } }
+  .page-header-glow {
+      position: absolute; top: -150px; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 800px; background: radial-gradient(circle, rgba(37,99,235,0.06) 0%, transparent 70%);
+      border-radius: 50%; pointer-events: none; z-index: 0;
+  }
+  .page-header .container { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
+  .page-header h1 { margin-bottom: var(--spacing-md); color: var(--navy); max-width: 800px; }
+  .page-header p { margin: 0 auto; color: var(--text-muted); max-width: 600px; }
+
+  .card {
+      background: var(--white); border-radius: var(--radius-card-mobile); padding: var(--spacing-md-l);
+      border: 1px solid var(--border); box-shadow: var(--shadow-card-mobile); transition: var(--transition-smooth);
+  }
+  @media (min-width: 1024px) { .card { border-radius: var(--radius-card-desktop); padding: var(--spacing-lg); box-shadow: var(--shadow-card-desktop); } }
+  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--primary); }
+
+  .btn {
+      display: inline-flex; align-items: center; justify-content: center; height: 48px; padding: 0 var(--spacing-md-l);
+      border-radius: var(--radius-pill); font-family: inherit; font-weight: 600; font-size: 15px;
+      cursor: pointer; transition: var(--transition-smooth); gap: var(--spacing-sm); border: none;
+  }
+  @media (min-width: 1024px) { .btn { height: 52px; padding: 0 var(--spacing-lg); font-size: 16px; } }
+  .btn-primary { background-color: var(--primary); color: var(--white); }
+  .btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2); }
+  .btn-white { background-color: var(--white); color: var(--navy); }
+  .btn-white:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .btn-glass { background-color: rgba(255,255,255,0.2); color: var(--white); border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(8px); }
+  .btn-glass:hover { background-color: var(--white); color: var(--navy); }
+  .btn-outline { background-color: transparent; color: var(--navy); border: 2px solid var(--border); }
+  .btn-outline:hover { background-color: var(--navy); color: var(--white); border-color: var(--navy); }
+
+  .btn-animated-fill { position: relative; overflow: hidden; }
+  .btn-animated-fill > span, .btn-animated-fill > svg, .btn-animated-fill > i { position: relative; z-index: 10; transition: transform 0.3s; }
+  .btn-animated-fill::after { content: ''; position: absolute; inset: 0; background: rgba(255, 255, 255, 0.2); transform: translateY(100%); transition: transform 0.3s ease-out; z-index: 1; }
+  .btn-animated-fill:hover::after { transform: translateY(0); }
+  .btn-animated-fill:active { transform: scale(0.97) !important; }
+  .btn-animated-fill:hover > svg, .btn-animated-fill:hover > i { transform: translateX(4px); }
+
+  .btn-nav-animated { position: relative; overflow: hidden; z-index: 1; }
+  .btn-nav-animated::before {
+      content: ''; width: 0; height: 100%; border-radius: var(--radius-pill); position: absolute;
+      top: 0; left: 0; background-image: linear-gradient(to right, var(--primary-hover) 0%, var(--navy) 100%);
+      transition: .5s ease; display: block; z-index: -1;
+  }
+  .btn-nav-animated:hover::before { width: 100%; }
+
+  .form-group { position: relative; width: 100%; display: block; }
+  .form-group.full-width { grid-column: 1 / -1; }
+  .form-control {
+      background-color: var(--bg-light); color: var(--text-main); width: 100%;
+      padding: 24px 16px 8px 16px; outline: 0; border: 1px solid transparent;
+      border-radius: var(--radius-md); font-family: inherit; font-size: 16px !important; 
+      transition: var(--transition-smooth); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+  }
+  @media (min-width: 1024px) { .form-control { padding: 26px 16px 10px 16px; } }
+  textarea.form-control { min-height: 140px; resize: vertical; }
+  .form-control:focus { background-color: var(--white); border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+  .form-label {
+      position: absolute; left: 16px; top: 0px; color: var(--text-muted);
+      font-size: 12px; font-weight: 700; cursor: text; transition: 0.3s ease; pointer-events: none;
+  }
+  .form-control:placeholder-shown + .form-label, select.form-control:invalid + .form-label { top: 16px; font-size: 16px; font-weight: 500; }
+  .form-control:focus + .form-label, .form-control:valid:not(:placeholder-shown) + .form-label,
+  select.form-control:focus + .form-label, select.form-control:valid + .form-label { color: var(--primary); top: 6px; font-size: 11px; font-weight: 700; }
+
+  .img-doctor { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4 / 5; border-radius: var(--radius-card-mobile); }
+  .img-service { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 10 / 7; border-radius: var(--radius-card-mobile); }
+  @media (min-width: 1024px) { .img-doctor { border-radius: var(--radius-card-desktop); } .img-service { border-radius: var(--radius-card-desktop); } }
+
+  .progress-wrap {
+      position: fixed; right: 24px; bottom: 24px; height: 50px; width: 50px; cursor: pointer; display: block; border-radius: 50px;
+      box-shadow: inset 0 0 0 2px rgba(37,99,235,0.1); z-index: 10000; opacity: 0; visibility: hidden;
+      transform: translateY(20px); transition: all 0.3s ease; background-color: rgba(255, 255, 255, 0.9); backdrop-filter: blur(4px);
+  }
+  .progress-wrap.active-progress { opacity: 1; visibility: visible; transform: translateY(0); }
+  .progress-wrap::after {
+      position: absolute; content: '\\2191'; text-align: center; line-height: 50px; font-size: 20px; font-weight: bold;
+      color: var(--primary); left: 0; top: 0; height: 50px; width: 50px; cursor: pointer; display: block; z-index: 1; transition: all 0.3s ease;
+  }
+  .progress-wrap:hover::after { color: var(--white); transform: translateY(-3px); }
+  .progress-wrap:hover { background-color: var(--primary); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2); }
+  .progress-wrap svg path { fill: none; }
+  .progress-wrap svg.progress-circle path { stroke: var(--primary); stroke-width: 4; box-sizing: border-box; transition: all 0.3s ease; }
+  .progress-wrap:hover svg.progress-circle path { stroke: var(--white); }
+
+  #loader {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--white); display: flex; align-items: center; justify-content: center;
+      z-index: var(--z-alert); transition: transform 0.8s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.8s ease;
+  }
+  .dots-container { display: flex; align-items: center; justify-content: center; }
+  .dot { height: 20px; width: 20px; margin-right: 10px; border-radius: 10px; background-color: #b3d4fc; animation: pulse 1.5s infinite ease-in-out; }
+  .dot:last-child { margin-right: 0; }
+  .dot:nth-child(1) { animation-delay: -0.3s; }
+  .dot:nth-child(2) { animation-delay: -0.1s; }
+  .dot:nth-child(3) { animation-delay: 0.1s; }
+  @keyframes pulse {
+      0%, 100% { transform: scale(0.8); background-color: #b3d4fc; box-shadow: 0 0 0 0 rgba(178, 212, 252, 0.7); }
+      50% { transform: scale(1.2); background-color: var(--primary); box-shadow: 0 0 0 10px rgba(178, 212, 252, 0); }
+  }
+
+  .page-transition-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: var(--z-alert); pointer-events: none; background: var(--bg-light);
+      opacity: 0; transition: opacity 0.4s ease-in-out;
+  }
+  body.is-transitioning .page-transition-overlay { opacity: 1; pointer-events: all; }
+  .page-section { display: none; opacity: 0; transition: opacity 0.6s ease; }
+  .page-section.active { display: block; opacity: 1; }
+
+  .navbar {
+      position: absolute; top: var(--spacing-md); left: var(--spacing-md); right: var(--spacing-md); height: 64px; padding: 0 var(--spacing-md);
+      background: var(--white); border-radius: var(--radius-lg); z-index: var(--z-sticky); box-shadow: var(--shadow-md); display: flex; align-items: center; transition: var(--transition-smooth);
+  }
+  @media (min-width: 1024px) {
+      .navbar { top: var(--spacing-md-l); left: 50%; right: auto; transform: translateX(-50%); width: calc(100% - var(--spacing-xl)); max-width: 1280px; height: 80px; padding: 0 var(--spacing-md-l); border-radius: var(--radius-pill); }
+  }
+  .navbar.scrolled { position: fixed; top: var(--spacing-sm); left: var(--spacing-md); right: var(--spacing-md); background: rgba(255,255,255,0.98); backdrop-filter: blur(10px); box-shadow: var(--shadow-lg); }
+  @media (min-width: 1024px) { .navbar.scrolled { left: 50%; right: auto; top: var(--spacing-sm); } }
+  .nav-container { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+  .logo { font-family: 'Manrope', sans-serif; font-size: 28px; font-weight: 800; color: var(--navy); display: flex; align-items: center; gap: 4px; letter-spacing: -0.04em; }
+  @media (min-width: 1024px) { .logo { font-size: 32px; } }
+  .logo sup { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+  .logo span { color: var(--primary); }
+  .nav-links { display: none; }
+  @media (min-width: 1024px) { .nav-links { display: flex; gap: var(--spacing-lg); align-items: center; margin-left: auto; margin-right: var(--spacing-xl); } }
+  .nav-links button { background: none; border: none; cursor: pointer; font-family: inherit; font-weight: 600; font-size: 15px; color: var(--text-main); transition: color 0.3s ease; display: flex; align-items: center; gap: 4px; padding: 0; }
+  .nav-links button:hover, .nav-links button.active { color: var(--primary); }
+  .nav-actions { display: flex; align-items: center; gap: var(--spacing-md); }
+  .cart-btn { position: relative; width: 40px; height: 40px; border-radius: 50%; background: var(--bg-light); display: flex; align-items: center; justify-content: center; color: var(--navy); transition: var(--transition-smooth); cursor: pointer; }
+  .cart-btn:hover { background: #E5E7EB; }
+  .cart-badge { position: absolute; top: 0; right: 0; width: 16px; height: 16px; background: var(--primary); color: white; font-size: 11px; font-weight: bold; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .nav-actions .btn { display: none; height: 40px; padding: 0 var(--spacing-md); font-size: 14px; }
+  @media (min-width: 768px) { .nav-actions .btn { display: inline-flex; } }
+  @media (min-width: 1024px) { .nav-actions .btn { height: 44px; padding: 0 var(--spacing-md-l); font-size: 15px; } }
+  .mobile-toggle { display: block; background: none; border: none; color: var(--navy); cursor: pointer; padding: var(--spacing-sm); }
+  @media (min-width: 1024px) { .mobile-toggle { display: none; } }
+
+  .hero { position: relative; width: 100%; min-height: auto; aspect-ratio: 4 / 5; background: url('https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=1440&h=500&q=80') center/cover no-repeat; display: flex; align-items: center; padding-top: var(--spacing-4xl); }
+  @media (min-width: 768px) { .hero { aspect-ratio: 4 / 3; } }
+  @media (min-width: 1024px) { .hero { aspect-ratio: 16 / 7; } }
+  .hero::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, rgba(10,22,40,0.8) 0%, rgba(10,22,40,0.4) 50%, rgba(10,22,40,0.1) 100%); }
+  .hero-content-wrapper { position: relative; z-index: 2; width: 100%; }
+  .hero-badge-top { display: inline-flex; align-items: center; gap: var(--spacing-md-s); background: rgba(255,255,255,0.15); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); padding: var(--spacing-sm) var(--spacing-md-l) var(--spacing-sm) var(--spacing-sm); border-radius: var(--radius-pill); color: var(--white); font-weight: 500; font-size: 14px; margin-bottom: var(--spacing-lg); }
+  .avatar-group { display: flex; }
+  .avatar-group img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #2B3A55; margin-left: -12px; }
+  .avatar-group img:first-child { margin-left: 0; }
+  .hero-title { color: var(--white); max-width: 100%; }
+  @media (min-width: 1024px) { .hero-title { max-width: 800px; } }
+  .hero-desc { color: rgba(255,255,255,0.8); max-width: 100%; }
+  @media (min-width: 1024px) { .hero-desc { max-width: 500px; } }
+  .hero-buttons { display: flex; gap: var(--spacing-md); }
+  .hero-right-cards { position: relative; display: flex; flex-direction: column; gap: var(--spacing-md); align-items: flex-start; margin-top: var(--spacing-xl); }
+  @media (min-width: 1024px) { .hero-right-cards { position: absolute; right: 0; bottom: 0; flex-direction: row; align-items: flex-end; margin-top: 0; } }
+  .glass-card-square { background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: var(--radius-lg); padding: var(--spacing-lg); width: 100%; max-width: 280px; box-shadow: var(--shadow-lg); }
+  .glass-card-square h5 { font-size: 14px; color: var(--text-muted); font-weight: 600; margin-bottom: var(--spacing-md); }
+  .glass-card-square h2 { font-size: 40px; color: var(--navy); margin-bottom: var(--spacing-sm); }
+  @media (min-width: 1024px) { .glass-card-square h2 { font-size: 56px; } }
+  .glass-card-square p { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+  .glass-card-tags { background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: var(--radius-lg); padding: var(--spacing-lg); display: flex; flex-direction: column; gap: var(--spacing-md-s); width: 100%; max-width: 280px; }
+  .tag-pill { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md-s) var(--spacing-md-l); border-radius: var(--radius-pill); border: 1px solid var(--border); font-size: 14px; font-weight: 600; color: var(--text-main); }
+  .tag-pill.active { background: var(--green); color: var(--white); border-color: var(--green); }
+
+  .ticker-section { padding: var(--spacing-xl) 0; border-bottom: 1px solid var(--border); overflow: hidden; background: var(--white); }
+  .ticker-title { text-align: center; font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: var(--spacing-md-l); }
+  .ticker-wrap { display: flex; width: 200%; animation: ticker 20s linear infinite; }
+  .ticker-items { display: flex; width: 50%; justify-content: space-around; align-items: center; }
+  .ticker-logo { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 24px; color: var(--navy); display: flex; align-items: center; gap: 4px; }
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+  .service-card-new { background: var(--white); border-radius: var(--radius-lg); padding: var(--spacing-lg); box-shadow: 0 2px 20px -8px rgba(6, 81, 237, 0.1); border: 1px solid rgba(229, 231, 235, 0.6); transition: var(--transition-smooth); position: relative; z-index: 1; }
+  .service-card-new:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(6, 81, 237, 0.12); }
+  .service-icon-new { width: 64px; height: 64px; border-radius: 16px; background: #EFF6FF; display: flex; align-items: center; justify-content: center; margin-bottom: var(--spacing-md-l); transition: var(--transition-smooth); color: var(--primary); }
+  .service-card-new:hover .service-icon-new { transform: scale(1.1); background: #DBEAFE; }
+
+  .badge-pill { display: inline-block; padding: 6px 16px; border-radius: var(--radius-pill); background: var(--white); border: 1px solid var(--border); color: var(--primary); font-size: 14px; font-weight: 600; box-shadow: var(--shadow-sm); margin-bottom: var(--spacing-md); }
+  .bg-gradient-glow { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 800px; height: 400px; background: rgba(37, 99, 235, 0.15); filter: blur(120px); border-radius: 50%; pointer-events: none; z-index: 0; }
+  
+  .speciality-split { display: grid; grid-template-columns: 1fr; gap: var(--spacing-3xl); align-items: center; }
+  @media (min-width: 1024px) { .speciality-split { grid-template-columns: 1fr 1fr; } }
+  .speciality-img-wrapper { position: relative; width: 100%; }
+  .speciality-img-offset { position: absolute; inset: 0; background: #EFF6FF; border-radius: 40px; transform: rotate(-3deg) scale(1.05); transform-origin: bottom left; z-index: 0; transition: transform 0.5s ease; }
+  .speciality-img-wrapper:hover .speciality-img-offset { transform: rotate(0deg) scale(1.05); }
+  .speciality-img { position: relative; z-index: 1; border-radius: 40px; width: 100%; height: 500px; object-fit: cover; border: 4px solid var(--white); box-shadow: var(--shadow-xl); }
+  @media (min-width: 1024px) { .speciality-img { height: 600px; } }
+  .trust-badge-float { position: absolute; bottom: -32px; right: -16px; background: var(--white); padding: var(--spacing-md-l); border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); display: flex; align-items: center; gap: var(--spacing-md); z-index: 2; border: 1px solid var(--border); animation: bounce-slow 3s infinite alternate; }
+  @media (min-width: 768px) { .trust-badge-float { right: -32px; } }
+  @keyframes bounce-slow { 0% { transform: translateY(0); } 100% { transform: translateY(-15px); } }
+  
+  .speciality-list { margin-bottom: var(--spacing-xl); display: flex; flex-direction: column; gap: var(--spacing-md-l); }
+  .speciality-list-item { display: flex; align-items: flex-start; gap: var(--spacing-md); cursor: default; }
+  .speciality-list-icon { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: #EFF6FF; display: flex; align-items: center; justify-content: center; color: var(--primary); transition: var(--transition-smooth); margin-top: 2px; }
+  .speciality-list-item:hover .speciality-list-icon { background: var(--primary); color: var(--white); }
+
+  .dentist-card-uiverse { position: relative; width: 100%; max-width: 400px; background: url('https://picsum.photos/seed/dentistvipul/400/533') center/cover; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; cursor: pointer; margin: 0 auto; }
+  .dentist-card-uiverse::before, .dentist-card-uiverse::after { position: absolute; content: ""; width: 20%; height: 20%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; background-color: var(--primary); color: var(--white); transition: var(--transition-smooth); z-index: 2; }
+  .dentist-card-uiverse::before { top: 0; right: 0; border-radius: 0 var(--radius-card-desktop) 0 100%; opacity: 0.95; }
+  .dentist-card-uiverse::after { bottom: 0; left: 0; border-radius: 0 100% 0 var(--radius-card-desktop); opacity: 0.95; }
+  .dentist-card-uiverse:hover::before, .dentist-card-uiverse:hover::after { width: 100%; height: 100%; border-radius: var(--radius-card-desktop); }
+  .dentist-card-uiverse:hover::after { content: "Meet Dr. Vipul"; }
+
+  .expert-care-section { position: relative; overflow: hidden; padding-top: var(--spacing-3xl); padding-bottom: var(--spacing-3xl); background-color: var(--bg-light); }
+  .expert-care-grid { display: grid; grid-template-columns: 1fr; gap: var(--spacing-3xl); align-items: center; position: relative; z-index: 10; }
+  @media (min-width: 1024px) { .expert-care-grid { grid-template-columns: 1fr 1fr; } }
+  .serving-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: var(--radius-pill); border: 1px solid var(--border); background: var(--white); box-shadow: var(--shadow-sm); margin-bottom: var(--spacing-xl); }
+  .serving-dot-wrap { position: relative; display: flex; width: 10px; height: 10px; }
+  .serving-dot-ping { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: var(--primary); opacity: 0.7; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; }
+  .serving-dot { position: relative; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); }
+  @keyframes ping { 75%, 100% { transform: scale(2.5); opacity: 0; } }
+  .expert-title-highlight { position: relative; display: inline-block; color: transparent; background-clip: text; -webkit-background-clip: text; background-image: linear-gradient(to right, var(--navy), var(--primary)); white-space: nowrap; }
+  .expert-review-faces { display: flex; margin-left: 12px; }
+  .expert-review-faces img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--white); margin-left: -12px; object-fit: cover; }
+  
+  .expert-collage { position: relative; width: 100%; aspect-ratio: 1; max-width: 600px; margin: 0 auto; }
+  @media (min-width: 1024px) { .expert-collage { aspect-ratio: 4/3; } }
+  .collage-img { position: absolute; object-fit: cover; border: 6px solid var(--white); box-shadow: var(--shadow-xl); border-radius: 32px; transition: transform 0.3s; }
+  .collage-img:hover { filter: brightness(1.05); z-index: 40 !important; }
+  .collage-img-1 { top: 0; right: 0; width: 55%; height: 55%; z-index: 10; animation: float-1 6s ease-in-out infinite; }
+  .collage-img-2 { top: 12%; left: 2%; width: 40%; aspect-ratio: 1; z-index: 20; border-radius: 50%; animation: float-2 5.5s ease-in-out infinite; }
+  .collage-img-3 { bottom: 5%; left: 5%; width: 45%; height: 45%; z-index: 30; animation: float-3 7s ease-in-out infinite; }
+  .collage-img-4 { bottom: 0; right: 5%; width: 45%; height: 45%; z-index: 20; animation: float-4 6.5s ease-in-out infinite; }
+  .collage-badge { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); padding: 16px 20px; border-radius: 20px; box-shadow: var(--shadow-xl); z-index: 50; display: flex; align-items: center; gap: 16px; border: 1px solid var(--border); }
+  @keyframes float-1 { 0%, 100% { transform: translateY(-8px) rotate(4deg); } 50% { transform: translateY(8px) rotate(6deg); } }
+  @keyframes float-2 { 0%, 100% { transform: translateY(10px) rotate(-8deg); } 50% { transform: translateY(-10px) rotate(-10deg); } }
+  @keyframes float-3 { 0%, 100% { transform: translateY(-8px) rotate(-4deg); } 50% { transform: translateY(8px) rotate(-2deg); } }
+  @keyframes float-4 { 0%, 100% { transform: translateY(8px) rotate(6deg); } 50% { transform: translateY(-8px) rotate(8deg); } }
+
+  .scrolling-testimonials { display: flex; gap: var(--spacing-md); height: 450px; overflow: hidden; mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent); -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent); }
+  @media (min-width: 768px) { .scrolling-testimonials { height: 500px; gap: var(--spacing-md-l); } }
+  @media (min-width: 1024px) { .scrolling-testimonials { height: 600px; } }
+  .scrolling-column { flex: 1; display: flex; flex-direction: column; gap: var(--spacing-md); }
+  @media (min-width: 768px) { .scrolling-column { gap: var(--spacing-md-l); } }
+  .scrolling-column:nth-child(2), .scrolling-column:nth-child(3) { display: none; }
+  @media (min-width: 768px) { .scrolling-column:nth-child(2) { display: flex; } }
+  @media (min-width: 1024px) { .scrolling-column:nth-child(3) { display: flex; } }
+  .scrolling-track { display: flex; flex-direction: column; gap: var(--spacing-md-l); animation: scrollY 25s linear infinite; }
+  .scrolling-track.reverse { animation: scrollY-reverse 30s linear infinite; }
+  .scrolling-column:hover .scrolling-track { animation-play-state: paused; }
+  @keyframes scrollY { 0% { transform: translateY(0); } 100% { transform: translateY(calc(-50% - 12px)); } }
+  @keyframes scrollY-reverse { 0% { transform: translateY(calc(-50% - 12px)); } 100% { transform: translateY(0); } }
+  .scroll-author-info h5 { margin-bottom: 2px; }
+
+  .appointment-layout { background: var(--white); border: 1px solid var(--border); box-shadow: var(--shadow-card-desktop); border-radius: var(--radius-lg); padding: var(--spacing-xl) var(--spacing-md-l); }
+  @media (min-width: 1024px) { .appointment-layout { padding: var(--spacing-3xl); } }
+  .social-round { display: flex; gap: var(--spacing-md); }
+  .social-round a { width: 48px; height: 48px; border-radius: 50%; background: var(--white); display: flex; align-items: center; justify-content: center; color: var(--navy); box-shadow: var(--shadow-sm); transition: var(--transition-smooth); }
+  .social-round a:hover { background: var(--primary); color: var(--white); transform: translateY(-3px); }
+
+  .calendar-time-wrapper { display: grid; grid-template-columns: 1fr; gap: var(--spacing-md-l); margin-top: var(--spacing-sm); }
+  @media (min-width: 1024px) { .calendar-time-wrapper { grid-template-columns: 1.2fr 1fr; } }
+  .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); }
+  .calendar-header h4 { font-size: 16px; margin: 0; color: var(--navy); }
+  .calendar-btn { background: var(--bg-light); border: none; cursor: pointer; color: var(--navy); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .calendar-btn:hover { background: var(--border); color: var(--primary); }
+  .calendar-days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-bottom: var(--spacing-sm); }
+  .calendar-days-grid span { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+  .calendar-dates-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+  .calendar-date { padding: var(--spacing-sm) 0; border-radius: var(--radius-md); cursor: pointer; font-size: 15px; font-weight: 600; color: var(--text-main); transition: all 0.2s; }
+  .calendar-date:hover:not(.empty) { background: var(--bg-light); color: var(--primary); }
+  .calendar-date.selected { background: var(--primary); color: var(--white); box-shadow: var(--shadow-sm); }
+  .calendar-date.empty { cursor: default; }
+
+  .time-slots { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md-s); }
+  .time-slot { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-card-mobile); background: var(--white); color: var(--text-main); font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 15px; text-align: center; box-shadow: var(--shadow-sm); }
+  .time-slot:hover { border-color: var(--primary); color: var(--primary); }
+  .time-slot.selected { background: var(--primary); color: var(--white); border-color: var(--primary); box-shadow: var(--shadow-sm); }
+
+  .faq-container { max-width: 800px; margin: 0 auto; }
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-question { width: 100%; text-align: left; background: none; border: none; padding: var(--spacing-lg) 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; color: var(--navy); font-family: inherit; font-size: 20px; font-weight: 700; transition: color 0.3s ease; }
+  .faq-question:hover { color: var(--primary); }
+  .faq-icon { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; background: var(--bg-light); display: flex; align-items: center; justify-content: center; color: var(--navy); transition: var(--transition-smooth); }
+  .faq-item.active .faq-icon { background: var(--primary); color: var(--white); transform: rotate(45deg); }
+  .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+  .faq-answer-inner { padding-bottom: var(--spacing-lg); color: var(--text-muted); font-size: 16px; line-height: 1.6; }
+
+  .reviews-masonry { column-count: 1; column-gap: var(--spacing-md); }
+  @media (min-width: 768px) { .reviews-masonry { column-count: 2; column-gap: var(--spacing-md-l); } }
+  @media (min-width: 1024px) { .reviews-masonry { column-count: 3; column-gap: var(--spacing-md-l); } }
+  .review-card { break-inside: avoid; margin-bottom: var(--spacing-md); }
+  @media (min-width: 768px) { .review-card { margin-bottom: var(--spacing-md-l); } }
+  .review-card.bg-blue { background-color: var(--primary); color: white; border: none; }
+  .review-card.bg-blue p, .review-card.bg-blue h4 { color: white; }
+  .review-card.bg-blue .text-muted { color: rgba(255,255,255,0.8); }
+  .review-card.bg-green { background-color: var(--green); color: white; border: none; }
+  .review-card.bg-green p, .review-card.bg-green h4 { color: white; }
+  .review-card.bg-green .text-muted { color: rgba(255,255,255,0.8); }
+  .review-author { display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-md-l); }
+  .review-author img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; }
+  .review-author h4 { margin-bottom: 2px; }
+  .review-top-bar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--spacing-md-l); }
+  .review-rating { display: flex; align-items: center; gap: var(--spacing-xs); font-weight: 700; font-size: 14px; }
+  .review-brand { margin-top: var(--spacing-lg); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 24px; letter-spacing: -0.05em; }
+
+  .tab-btn { padding: 10px 24px; border: none; background: transparent; border-radius: var(--radius-pill); font-family: inherit; font-weight: 600; font-size: 15px; color: var(--text-muted); cursor: pointer; transition: var(--transition-smooth); white-space: nowrap; }
+  .tab-btn:hover { color: var(--navy); }
+  .tab-btn.active { background: var(--white); color: var(--navy); box-shadow: var(--shadow-sm); }
+  .service-detail-block { display: grid; grid-template-columns: 1fr; gap: var(--spacing-xl); align-items: center; margin-bottom: var(--spacing-4xl); padding-bottom: var(--spacing-4xl); border-bottom: 1px solid var(--border); }
+  .service-detail-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  @media (min-width: 1024px) { .service-detail-block { grid-template-columns: 1fr 1fr; gap: 80px; } .service-detail-block.reverse .service-block-content { order: 2; } .service-detail-block.reverse .service-block-image { order: 1; } }
+
+  .cta-banner { background: var(--navy); border-radius: var(--radius-lg); padding: var(--spacing-3xl) var(--spacing-xl); text-align: center; color: var(--white); position: relative; overflow: hidden; }
+  .cta-banner::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 60%); pointer-events: none; }
+  .cta-banner h2 { color: var(--white); margin-bottom: var(--spacing-md-l); }
+  .cta-banner p { color: rgba(255,255,255,0.8); max-width: 600px; margin: 0 auto var(--spacing-xl); }
+
+  .shadcn-footer { background: var(--white); padding: var(--spacing-4xl) 0 var(--spacing-xl); border-top: 1px solid var(--border); position: relative; z-index: var(--z-dropdown); }
+  .footer-brand { margin-bottom: var(--spacing-lg); }
+  .footer-brand .logo { font-family: 'Manrope', sans-serif; font-weight: 800; color: var(--navy); display: flex; align-items: center; gap: var(--spacing-xs); letter-spacing: -0.04em; }
+  .footer-brand .logo sup { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+  .footer-brand .logo span { color: var(--primary); }
+  .footer-brand .tagline { margin-top: var(--spacing-md); font-weight: 700; color: var(--navy); font-size: 16px; }
+  .footer-col-new h3 { margin-bottom: var(--spacing-md); font-weight: 700; color: var(--navy); }
+  .footer-col-new ul { display: flex; flex-direction: column; gap: var(--spacing-md); }
+  .footer-col-new button { background: none; border:none; padding:0; font-family: inherit; cursor: pointer; color: var(--text-muted); font-weight: 500; font-size: 15px; transition: color 0.2s ease; }
+  .footer-col-new button:hover { color: var(--primary); }
+  .footer-bottom-new { margin-top: var(--spacing-3xl); padding-top: var(--spacing-lg); border-top: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; gap: var(--spacing-md); font-size: 14px; font-weight: 500; color: var(--text-muted); }
+  @media (min-width: 768px) { .footer-bottom-new { flex-direction: row; align-items: center; } }
+  .bottom-links { display: flex; gap: var(--spacing-md); }
+  .bottom-links a:hover { color: var(--primary); text-decoration: underline; }
+
+  .reveal, .reveal-left, .reveal-right { opacity: 0; transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+  .reveal { transform: translateY(40px) scale(0.96); }
+  .reveal.active { opacity: 1; transform: translateY(0) scale(1); }
+  .reveal-left { transform: translateX(-40px) scale(0.96); }
+  .reveal-left.active { opacity: 1; transform: translateX(0) scale(1); }
+  .reveal-right { transform: translateX(40px) scale(0.96); }
+  .reveal-right.active { opacity: 1; transform: translateX(0) scale(1); }
+  .delay-1 { transition-delay: 0.1s; } .delay-2 { transition-delay: 0.2s; } .delay-3 { transition-delay: 0.3s; }
+`;
+
+export default function CrispDentApp() {
+  const [loaded, setLoaded] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [activeRoute, setActiveRoute] = useState('home');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(100);
+
+  // Intersection Observer to trigger '.reveal' animations
   useEffect(() => {
-    window.scrollTo(0, 0);
-    setIsMenuOpen(false);
-  }, [currentPage]);
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
 
-  const navigateTo = (page) => {
-    setCurrentPage(page);
-  };
+    const elements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+    elements.forEach(el => observer.observe(el));
 
-  // --- PAGE COMPONENTS ---
+    return () => observer.disconnect();
+  }, [activeRoute, loaded]);
 
-  const HomeFAQSection = () => {
-    const [openIndex, setOpenIndex] = useState(null);
-    const faqsList = [
-      { q: t.homeFaq.q1, a: t.homeFaq.a1 },
-      { q: t.homeFaq.q2, a: t.homeFaq.a2 },
-      { q: t.homeFaq.q3, a: t.homeFaq.a3 },
-      { q: t.homeFaq.q4, a: t.homeFaq.a4 },
-      { q: t.homeFaq.q5, a: t.homeFaq.a5 },
-    ];
+  // Loader & Scroll Listeners
+  useEffect(() => {
+    // Fake app loader
+    const timer = setTimeout(() => {
+      setLoaded(true);
+      document.body.classList.add('loaded');
+    }, 1500);
 
-    return (
-      <section className="py-8 md:py-12 max-w-3xl mx-auto w-full mt-4">
-        <div className="text-center mb-6 md:mb-8">
-          <p className="text-[11px] md:text-xs font-bold tracking-[0.25em] uppercase text-[#B26941] mb-2">{t.homeFaq.eyebrow}</p>
-          <h2 className="font-outfit text-3xl md:text-4xl lg:text-[3.5rem] font-semibold tracking-[-0.04em] text-[#111111] leading-[1.1]">
-            {t.homeFaq.title}
-          </h2>
-        </div>
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      setScrolled(scrollY > 50);
 
-        <div className="bg-[#F2F1EC] rounded-2xl md:rounded-[2rem] overflow-hidden text-left border border-[#E8E7E2]">
-          {faqsList.map((faq, index) => (
-            <div 
-              key={index} 
-              className={`border-[#E5E5E5] ${index !== faqsList.length - 1 ? 'border-b' : ''}`}
-            >
-              <button 
-                onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full flex justify-between items-center p-4 md:p-6 hover:bg-[#ebeae5] transition-colors active:bg-[#e4e3de]"
-              >
-                <span className="font-outfit text-base md:text-lg font-medium pr-4 text-left">{faq.q}</span>
-                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0 transition-colors ${openIndex === index ? 'bg-[#1A1A1A] text-white' : 'bg-white text-[#1A1A1A] shadow-sm border border-[#E5E5E5]'}`}>
-                  <Plus size={16} strokeWidth={2} className={`transition-transform duration-300 ${openIndex === index ? 'rotate-45' : 'rotate-0'}`} />
-                </div>
-              </button>
-              
-              <div 
-                className={`grid transition-all duration-300 ease-in-out ${openIndex === index ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
-              >
-                <div className="overflow-hidden">
-                  <div className="px-4 md:px-6 pb-6 text-[#5A5A5A] text-sm md:text-base font-light leading-relaxed pr-10 md:pr-16 whitespace-pre-line">
-                    {faq.a}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-    );
-  };
+      // Circular progress bar logic
+      const height = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = 100 - (scrollY * 100 / height);
+      setScrollProgress(progress);
+    };
 
-  const HomePage = () => (
-    <>
-      {/* SECTION 1 - HERO */}
-      <section className="pt-4 md:pt-6 pb-10 md:pb-16 flex flex-col items-center text-center">
-        <p className="text-[10px] md:text-xs font-bold tracking-[0.25em] uppercase text-[#B26941] mb-3 md:mb-4">
-          {t.hero.eyebrow}
-        </p>
-        <h1 className="font-outfit text-[2rem] leading-[1.1] sm:text-4xl md:text-5xl lg:text-[4rem] font-medium tracking-[-0.03em] mb-4 md:mb-5 max-w-4xl mx-auto text-[#111111]">
-          {t.hero.title1} <br className="hidden sm:block" /> {t.hero.title2}
-        </h1>
-        <p className="text-[#5A5A5A] text-sm sm:text-base md:text-lg max-w-xl mx-auto mb-6 md:mb-8 leading-relaxed font-light px-2">
-          {t.hero.subtitle}
-        </p>
-        <div className="flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-3 md:gap-4 mb-6 w-full px-2 sm:px-0 max-w-sm mx-auto sm:max-w-none">
-          <a href="https://www.lieferando.de" target="_blank" rel="noreferrer" className="w-full sm:w-auto text-center bg-[#FFCBA4] hover:bg-[#ffbd8f] text-[#1A1A1A] px-5 md:px-8 py-3.5 rounded-full font-medium text-sm md:text-base transition-all active:scale-95 shadow-sm whitespace-nowrap">
-            {t.hero.btnPrimary}
-          </a>
-          <button onClick={() => navigateTo('menu')} className="w-full sm:w-auto text-center bg-transparent border border-[#E8E7E2] hover:border-[#B26941] text-[#B26941] px-5 md:px-8 py-3.5 rounded-full font-medium text-sm md:text-base transition-all active:scale-95 whitespace-nowrap">
-            {t.hero.btnSecondary}
-          </button>
-        </div>
-        <p className="text-[#7A7A7A] text-[11px] md:text-sm font-medium tracking-wide mb-6 md:mb-8 px-4">
-          {t.hero.hours}
-        </p>
-        <div className="w-full">
-          <div className="w-full aspect-[4/3] md:aspect-[21/9] rounded-2xl md:rounded-[2.5rem] overflow-hidden group shadow-sm border border-[#F0F0F0]">
-            <img src="https://i.ibb.co/rKXf4S3p/hero-starkebap.webp" alt="Delicious Turkish Food" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-          </div>
-        </div>
-      </section>
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
-      {/* SECTION 2 - WHAT WE DO */}
-      <section className="my-8 md:my-12 bg-[#F2F1EC] rounded-2xl md:rounded-[2.5rem] px-5 md:px-10 py-8 md:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
-          <div className="flex flex-col items-center text-center md:items-start md:text-left">
-            <div className="w-12 h-12 md:w-14 md:h-14 bg-[#1A1A1A] text-[#FFCBA4] rounded-full flex items-center justify-center mb-3 md:mb-4">
-              <Utensils className="w-5 h-5 md:w-6 md:h-6" />
-            </div>
-            <h3 className="font-outfit text-lg md:text-xl font-medium text-[#1A1A1A] mb-2">{t.whatWeDo.kebabTitle}</h3>
-            <p className="text-[#5A5A5A] text-sm md:text-base font-light leading-relaxed">
-              {t.whatWeDo.kebabDesc}
-            </p>
-          </div>
-          <div className="flex flex-col items-center text-center md:items-start md:text-left">
-            <div className="w-12 h-12 md:w-14 md:h-14 bg-[#1A1A1A] text-[#FFCBA4] rounded-full flex items-center justify-center mb-3 md:mb-4">
-              <Pizza className="w-5 h-5 md:w-6 md:h-6" />
-            </div>
-            <h3 className="font-outfit text-lg md:text-xl font-medium text-[#1A1A1A] mb-2">{t.whatWeDo.pizzaTitle}</h3>
-            <p className="text-[#5A5A5A] text-sm md:text-base font-light leading-relaxed">
-              {t.whatWeDo.pizzaDesc}
-            </p>
-          </div>
-          <div className="flex flex-col items-center text-center md:items-start md:text-left">
-            <div className="w-12 h-12 md:w-14 md:h-14 bg-[#1A1A1A] text-[#FFCBA4] rounded-full flex items-center justify-center mb-3 md:mb-4">
-              <Leaf className="w-5 h-5 md:w-6 md:h-6" />
-            </div>
-            <h3 className="font-outfit text-lg md:text-xl font-medium text-[#1A1A1A] mb-2">{t.whatWeDo.saladsTitle}</h3>
-            <p className="text-[#5A5A5A] text-sm md:text-base font-light leading-relaxed">
-              {t.whatWeDo.saladsDesc}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 3 - ABOUT US */}
-      <section className="py-8 md:py-12 border-t border-[#F0F0F0]">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-6 md:gap-10 items-center">
-          <div className="flex-1 text-center md:text-left">
-            <h2 className="font-outfit text-3xl md:text-4xl lg:text-[3.5rem] font-semibold tracking-[-0.04em] mb-4 leading-[1.1] text-[#111111]">
-              {t.aboutSnippet.title1} <br className="hidden md:block"/> {t.aboutSnippet.title2}
-            </h2>
-            <p className="text-[#5A5A5A] text-sm md:text-lg mb-3 md:mb-4 font-light leading-relaxed">
-              {t.aboutSnippet.p1}
-            </p>
-            <p className="text-[#5A5A5A] text-sm md:text-lg mb-5 md:mb-6 font-light leading-relaxed">
-              {t.aboutSnippet.p2}
-            </p>
-            <button onClick={() => navigateTo('about')} className="text-[#B26941] text-sm md:text-base font-medium border-b border-[#B26941] pb-0.5 md:pb-1 hover:text-[#1A1A1A] hover:border-[#1A1A1A] transition-colors inline-block">
-              {t.aboutSnippet.btn}
-            </button>
-          </div>
-          <div className="flex-1 w-full aspect-square md:aspect-auto md:h-[350px] lg:h-[400px] rounded-2xl md:rounded-[2rem] overflow-hidden">
-            <img src="https://i.ibb.co/Y7XXSBYD/starkebap-team.webp" alt="Star Kebap Team" className="w-full h-full object-cover" />
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 4 - MENU HIGHLIGHT */}
-      <section className="py-8 md:py-12 border-t border-[#F0F0F0]">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-5 md:mb-6 gap-3">
-          <div>
-            <p className="text-[10px] md:text-xs font-bold tracking-[0.25em] uppercase text-[#B26941] mb-1.5">{t.featured.eyebrow}</p>
-            <h2 className="font-outfit text-3xl md:text-4xl lg:text-[3.5rem] font-semibold tracking-[-0.04em] text-[#111111] leading-[1.1]">
-              {t.featured.title}
-            </h2>
-          </div>
-          <button onClick={() => navigateTo('menu')} className="text-[#B26941] text-sm md:text-base font-medium border-b border-[#B26941] pb-0.5 hover:text-[#1A1A1A] hover:border-[#1A1A1A] transition-colors">
-            {t.featured.btn}
-          </button>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-          <div className="bg-white rounded-2xl md:rounded-[1.5rem] border border-[#F0F0F0] overflow-hidden hover:shadow-md transition-shadow group flex flex-col">
-            <div className="aspect-[4/3] w-full overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Iskender Kebap" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-            </div>
-            <div className="p-4 md:p-6 flex flex-col flex-grow">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-outfit text-lg md:text-xl font-medium text-[#1A1A1A]">Iskender Kebap</h3>
-                <span className="font-medium text-[#1A1A1A] text-sm md:text-base">14.00 €</span>
-              </div>
-              <p className="text-[#5A5A5A] text-sm md:text-base font-light leading-relaxed mb-3 flex-grow">{t.featured.item1Desc}</p>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl md:rounded-[1.5rem] border border-[#F0F0F0] overflow-hidden hover:shadow-md transition-shadow group flex flex-col">
-            <div className="aspect-[4/3] w-full overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Pizza Star" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-            </div>
-            <div className="p-4 md:p-6 flex flex-col flex-grow">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-outfit text-lg md:text-xl font-medium text-[#1A1A1A]">Pizza Star</h3>
-                <span className="font-medium text-[#1A1A1A] text-sm md:text-base">12.00 €</span>
-              </div>
-              <p className="text-[#5A5A5A] text-sm md:text-base font-light leading-relaxed mb-3 flex-grow">{t.featured.item2Desc}</p>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl md:rounded-[1.5rem] border border-[#F0F0F0] overflow-hidden hover:shadow-md transition-shadow group flex flex-col">
-            <div className="aspect-[4/3] w-full overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Döner Überbacken" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-            </div>
-            <div className="p-4 md:p-6 flex flex-col flex-grow">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-outfit text-lg md:text-xl font-medium text-[#1A1A1A]">Döner Überbacken</h3>
-                <span className="font-medium text-[#1A1A1A] text-sm md:text-base">13.00 €</span>
-              </div>
-              <p className="text-[#5A5A5A] text-sm md:text-base font-light leading-relaxed mb-3 flex-grow">{t.featured.item3Desc}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 5 - SOCIAL PROOF (Reviews) */}
-      <section className="py-8 md:py-12 border-t border-[#F0F0F0] overflow-hidden">
-        <div className="flex flex-col items-center justify-center text-center mb-6 md:mb-8">
-          <div className="flex gap-1 text-[#FFCBA4] mb-2">
-            <Star fill="currentColor" className="w-5 h-5 md:w-6 md:h-6" />
-            <Star fill="currentColor" className="w-5 h-5 md:w-6 md:h-6" />
-            <Star fill="currentColor" className="w-5 h-5 md:w-6 md:h-6" />
-            <Star fill="currentColor" className="w-5 h-5 md:w-6 md:h-6" />
-            <Star fill="currentColor" className="w-5 h-5 md:w-6 md:h-6" />
-          </div>
-          <h2 className="font-outfit text-3xl md:text-4xl lg:text-[3.5rem] font-semibold tracking-[-0.04em] mb-2 text-[#111111]">
-            {t.reviews.title}
-          </h2>
-          <p className="text-[#5A5A5A] text-sm md:text-base font-light">
-            {t.reviews.subtitle}
-          </p>
-        </div>
-
-        <div className="flex overflow-x-auto gap-3 md:gap-4 pb-4 md:pb-6 hide-scrollbar snap-x snap-mandatory px-4 md:px-0">
-          {reviews.map((review) => (
-            <div 
-              key={review.id} 
-              className="snap-start shrink-0 w-[250px] md:w-[320px] bg-white rounded-2xl md:rounded-[1.5rem] p-4 md:p-6 border border-[#F0F0F0] shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow"
-            >
-              <div>
-                <div className="flex gap-1 mb-3 md:mb-4 text-[#FFCBA4]">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} fill={i < review.rating ? "currentColor" : "none"} className="w-4 h-4" />
-                  ))}
-                </div>
-                <p className="text-[#1A1A1A] font-light leading-relaxed mb-4 text-sm md:text-base">"{review.text}"</p>
-              </div>
-              <div>
-                {review.image && (
-                  <div className="w-full h-28 md:h-32 rounded-xl overflow-hidden mb-3 md:mb-4">
-                    <img src={review.image} className="w-full h-full object-cover" alt="Review photo" />
-                  </div>
-                )}
-                <div className="flex justify-between items-center text-xs md:text-sm border-t border-[#F0F0F0] pt-3">
-                  <span className="font-medium text-[#1A1A1A]">{review.name}</span>
-                  <span className="text-[#7A7A7A]">{review.date}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* SECTION 6 - ORDER OPTIONS */}
-      <section className="py-10 md:py-16 border-t border-[#F0F0F0]">
-        <div className="flex flex-col items-center text-center mb-8 md:mb-12">
-          <p className="text-[10px] md:text-xs font-bold tracking-[0.25em] uppercase text-[#B26941] mb-2">
-            {lang === 'de' ? 'Deine Wahl' : 'Your Choice'}
-          </p>
-          <h2 className="font-outfit text-3xl md:text-4xl lg:text-[3.5rem] font-semibold tracking-[-0.04em] text-[#111111] leading-[1.1]">
-            {t.orderOptions.title}
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
-          {/* CARD 1: DINE IN (Clean White) */}
-          <div className="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2rem] border border-[#E8E7E2] text-center shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center group">
-            <div className="w-14 h-14 md:w-16 md:h-16 bg-[#F9F8F6] group-hover:bg-[#FFCBA4] text-[#B26941] group-hover:text-[#1A1A1A] rounded-full flex items-center justify-center mb-4 transition-colors duration-300">
-              <Users className="w-6 h-6 md:w-7 md:h-7" />
-            </div>
-            <h3 className="font-outfit text-lg md:text-xl font-medium text-[#1A1A1A] mb-2">{t.orderOptions.dineInTitle}</h3>
-            <p className="text-[#5A5A5A] text-sm md:text-base font-light leading-relaxed mb-5 flex-grow">{t.orderOptions.dineInDesc}</p>
-            <button onClick={() => navigateTo('reservation')} className="text-[#1A1A1A] text-xs md:text-sm font-medium border-b-2 border-[#E8E7E2] hover:border-[#B26941] pb-1 transition-colors uppercase tracking-wide">
-              {t.orderOptions.dineInBtn}
-            </button>
-          </div>
-          
-          {/* CARD 2: TAKEAWAY (Soft Beige) */}
-          <div className="bg-[#F2F1EC] p-6 md:p-8 rounded-3xl md:rounded-[2rem] border border-transparent text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center group">
-            <div className="w-14 h-14 md:w-16 md:h-16 bg-white group-hover:bg-[#FFCBA4] text-[#B26941] group-hover:text-[#1A1A1A] rounded-full flex items-center justify-center mb-4 transition-colors duration-300 shadow-sm">
-              <ShoppingBag className="w-6 h-6 md:w-7 md:h-7" />
-            </div>
-            <h3 className="font-outfit text-lg md:text-xl font-medium text-[#1A1A1A] mb-2">{t.orderOptions.takeawayTitle}</h3>
-            <p className="text-[#5A5A5A] text-sm md:text-base font-light leading-relaxed mb-5 flex-grow">{t.orderOptions.takeawayDesc}</p>
-            <a href="tel:+4970239424183" className="text-[#1A1A1A] text-xs md:text-sm font-medium border-b-2 border-[#dcdad1] hover:border-[#B26941] pb-1 transition-colors uppercase tracking-wide">
-              {t.orderOptions.takeawayBtn}
-            </a>
-          </div>
-
-          {/* CARD 3: DELIVERY (Dark Charcoal Accent) */}
-          <div className="bg-[#1A1A1A] p-6 md:p-8 rounded-3xl md:rounded-[2rem] border border-[#1A1A1A] text-center shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center relative overflow-hidden group">
-            <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#B26941] rounded-full blur-[50px] md:blur-[60px] opacity-20 group-hover:opacity-40 transition-opacity duration-500"></div>
-            
-            <div className="w-14 h-14 md:w-16 md:h-16 bg-[#2A2A2A] text-[#FFCBA4] rounded-full flex items-center justify-center mb-4 shadow-inner relative z-10 transition-transform duration-300 group-hover:scale-110">
-              <Truck className="w-6 h-6 md:w-7 md:h-7" />
-            </div>
-            <h3 className="font-outfit text-lg md:text-xl font-medium text-white mb-2 relative z-10">{t.orderOptions.deliveryTitle}</h3>
-            <p className="text-[#A0A0A0] text-sm md:text-base font-light leading-relaxed mb-5 flex-grow relative z-10">{t.orderOptions.deliveryDesc}</p>
-            <a href="https://www.lieferando.de" target="_blank" rel="noreferrer" className="w-full text-center bg-[#FFCBA4] hover:bg-white text-[#1A1A1A] py-3 md:py-3.5 rounded-full text-sm md:text-base font-semibold transition-colors relative z-10 tracking-wide active:scale-95 shadow-md">
-              {t.orderOptions.deliveryBtn}
-            </a>
-          </div>
-        </div>
-      </section>
-    </>
-  );
-
-  const MenuPage = () => {
-    const [activeCategory, setActiveCategory] = useState(Object.keys(menuData)[0]);
+  // Soft Route Navigation Method
+  const navigateTo = (route) => {
+    if (route === activeRoute || isTransitioning) return;
+    setMobileMenuOpen(false);
+    setIsTransitioning(true);
+    document.body.classList.add('is-transitioning');
     
-    // Ensure active category updates if language changes
-    useEffect(() => {
-      setActiveCategory(Object.keys(menuData)[0]);
-    }, [lang]);
+    setTimeout(() => {
+      setActiveRoute(route);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      document.body.classList.remove('is-transitioning');
+      
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 400);
+    }, 400);
+  };
 
+  // Reusable Hero Word Animator Component
+  const AnimatedHeroTitle = ({ text }) => {
     return (
-      <section className="py-6 md:py-12 max-w-6xl mx-auto">
-        
-        <div className="text-center mb-6 md:mb-8">
-          <p className="text-[10px] md:text-xs font-bold tracking-[0.25em] uppercase text-[#B26941] mb-2">{t.menu.eyebrow}</p>
-          <h1 className="font-outfit text-3xl sm:text-4xl md:text-5xl font-medium tracking-[-0.03em] text-[#111111]">{t.menu.title}</h1>
-        </div>
-
-        {/* --- CATEGORY OVERVIEW (PILL CLOUD LAYOUT) --- */}
-        <div className="mb-6 md:mb-10">
-          <div className="flex items-center justify-center gap-2 mb-4 px-2">
-            <h2 className="font-outfit text-lg md:text-xl font-medium text-[#7A7A7A]">{t.menu.categories}</h2>
-            <ChevronDown size={16} className="text-[#B26941]" />
-          </div>
-          
-          <div className="flex flex-wrap justify-center gap-2 md:gap-3 px-2">
-            {Object.keys(menuData).map((cat) => (
-              <button 
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-4 md:px-5 py-2 md:py-2.5 rounded-full border text-center transition-all active:scale-95 flex items-center justify-center ${
-                  activeCategory === cat 
-                    ? 'bg-[#FFCBA4] border-[#FFCBA4] text-[#1A1A1A] shadow-sm font-semibold' 
-                    : 'bg-white border-[#E8E7E2] text-[#5A5A5A] hover:border-[#B26941] hover:text-[#1A1A1A] font-medium'
-                }`}
-              >
-                <h3 className="font-outfit text-[13px] md:text-sm tracking-tight">{cat}</h3>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* --- ACTIVE CATEGORY ITEMS --- */}
-        <div className="bg-white rounded-3xl md:rounded-[2rem] p-4 sm:p-6 md:p-8 shadow-sm border border-[#F0F0F0]">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end border-b border-[#F0F0F0] pb-3 md:pb-4 mb-4 md:mb-6 gap-2">
-            <h2 className="font-outfit text-2xl md:text-3xl font-semibold text-[#1A1A1A]">{activeCategory}</h2>
-            <span className="text-[#7A7A7A] text-xs md:text-sm font-medium bg-[#F9F8F6] px-3 py-1 rounded-full w-max">{menuData[activeCategory]?.length || 0} {t.menu.items}</span>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5 md:gap-y-8">
-            {menuData[activeCategory] && menuData[activeCategory].map((item, index) => (
-              <div key={index} className="flex justify-between items-start gap-3 group">
-                <div className="flex-1">
-                  <h3 className="font-outfit text-base md:text-lg font-medium text-[#1A1A1A] group-hover:text-[#B26941] transition-colors pr-2 leading-snug">{item.name}</h3>
-                  {item.desc && (
-                    <p className="text-[#7A7A7A] text-[13px] md:text-sm mt-1 font-light leading-relaxed pr-2">{item.desc}</p>
-                  )}
-                </div>
-                <div className="flex flex-col items-end gap-1.5 shrink-0">
-                  <span className="font-outfit text-base md:text-lg font-medium text-[#1A1A1A]">{item.price}</span>
-                  {item.isVeg && (
-                    <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#E8F3EA] text-[#4CAF50] flex items-center justify-center" title="Vegetarian">
-                      <Leaf size={10} className="md:w-[12px] md:h-[12px]" />
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-      </section>
+      <h1 className="hero-title text-display">
+        {text.split(' ').map((word, i) => (
+          <span 
+            key={i} 
+            style={{ 
+              display: 'inline-block', 
+              opacity: loaded ? 1 : 0, 
+              transform: loaded ? 'translateY(0)' : 'translateY(30px)', 
+              transition: `all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) ${i * 0.1}s` 
+            }}
+          >
+            {word}&nbsp;
+          </span>
+        ))}
+      </h1>
     );
   };
 
-  const AboutPage = () => (
-    <section className="py-6 md:py-12 max-w-4xl mx-auto">
-      <p className="text-[10px] md:text-xs font-bold tracking-[0.25em] uppercase text-[#B26941] mb-2 md:mb-4 text-center">{t.aboutFull.eyebrow}</p>
-      <h1 className="font-outfit text-3xl sm:text-4xl md:text-5xl font-medium tracking-[-0.03em] mb-6 md:mb-8 text-[#111111] text-center">{t.aboutFull.title}</h1>
-      
-      <div className="w-full aspect-[16/9] rounded-2xl md:rounded-[2rem] overflow-hidden mb-8 md:mb-10 shadow-sm border border-[#F0F0F0]">
-        <img src="https://i.ibb.co/bg83Cwtw/About-starkebap.webp"  alt="Restaurant Team" className="w-full h-full object-cover" />
+  // Custom Calendar State for Appointment Booking
+  const [currentDate, setCurrentDate] = useState(new Date(2026, 4, 1)); // Default May 2026
+  const [selectedDate, setSelectedDate] = useState(new Date(2026, 4, 15));
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('09:00 AM');
+
+  const renderCalendarDays = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const lastDay = new Date(year, month + 1, 0).getDate();
+    
+    const days = [];
+    for (let i = 0; i < firstDayIndex; i++) {
+      days.push(<div key={`empty-${i}`} className="calendar-date empty"></div>);
+    }
+    for (let i = 1; i <= lastDay; i++) {
+      const isSelected = selectedDate.getDate() === i && selectedDate.getMonth() === month && selectedDate.getFullYear() === year;
+      days.push(
+        <div 
+          key={`day-${i}`} 
+          className={`calendar-date ${isSelected ? 'selected' : ''}`}
+          onClick={() => setSelectedDate(new Date(year, month, i))}
+        >
+          {i}
+        </div>
+      );
+    }
+    return days;
+  };
+
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  const FAQItem = ({ question, answer, isOpen, onClick }) => (
+    <div className={`faq-item ${isOpen ? 'active' : ''}`}>
+      <button className="faq-question" onClick={onClick}>
+        {question}
+        <span className="faq-icon"><Plus size={24} /></span>
+      </button>
+      <div className="faq-answer" style={{ maxHeight: isOpen ? '500px' : '0' }}>
+        <div className="faq-answer-inner">{answer}</div>
       </div>
-
-      <div className="prose prose-sm md:prose-lg text-[#5A5A5A] font-light leading-relaxed max-w-none space-y-8 md:space-y-10 px-2 md:px-0">
-        
-        {/* Section 1 */}
-        <div>
-          <h2 className="text-xl md:text-2xl text-[#1A1A1A] font-medium leading-snug mb-2 md:mb-3">
-            {t.aboutFull.intro1}
-          </h2>
-          <p className="text-sm md:text-base">{t.aboutFull.intro2}</p>
-        </div>
-
-        {/* Section 2 */}
-        <div>
-          <h2 className="text-xl md:text-2xl text-[#1A1A1A] font-medium leading-snug mb-2 md:mb-3">
-            {t.aboutFull.section2Title}
-          </h2>
-          <p className="text-sm md:text-base mb-2 md:mb-3">{t.aboutFull.section2p1}</p>
-          <p className="text-sm md:text-base">{t.aboutFull.section2p2}</p>
-        </div>
-
-        {/* Section 3 */}
-        <div>
-          <h2 className="text-xl md:text-2xl text-[#1A1A1A] font-medium leading-snug mb-2 md:mb-3">
-            {t.aboutFull.section3Title}
-          </h2>
-          <p className="text-sm md:text-base mb-2 md:mb-3">{t.aboutFull.section3p1}</p>
-          <p className="text-sm md:text-base mb-2 md:mb-3">{t.aboutFull.section3p2}</p>
-          <p className="text-sm md:text-base mb-2 md:mb-3">{t.aboutFull.section3p3}</p>
-          <p className="text-sm md:text-base">{t.aboutFull.section3p4}</p>
-        </div>
-
-        {/* Section 4 */}
-        <div>
-          <h2 className="text-xl md:text-2xl text-[#1A1A1A] font-medium leading-snug mb-4 md:mb-5">
-            {t.aboutFull.howToGet}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5">
-            <div className="bg-white p-5 rounded-2xl md:rounded-[1.5rem] border border-[#E8E7E2] text-center">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-[#F9F8F6] text-[#B26941] rounded-full flex items-center justify-center mx-auto mb-3"><Utensils size={18} /></div>
-              <h3 className="font-outfit text-base md:text-lg font-medium text-[#1A1A1A] mb-1.5">{t.orderOptions.dineInTitle}</h3>
-              <p className="text-xs md:text-sm text-[#5A5A5A]">{t.aboutFull.dineInDesc}</p>
-            </div>
-            <div className="bg-white p-5 rounded-2xl md:rounded-[1.5rem] border border-[#E8E7E2] text-center">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-[#F9F8F6] text-[#B26941] rounded-full flex items-center justify-center mx-auto mb-3"><ShoppingBag size={18} /></div>
-              <h3 className="font-outfit text-base md:text-lg font-medium text-[#1A1A1A] mb-1.5">{t.orderOptions.takeawayTitle}</h3>
-              <p className="text-xs md:text-sm text-[#5A5A5A]">{t.aboutFull.takeawayDesc}</p>
-            </div>
-            <div className="bg-white p-5 rounded-2xl md:rounded-[1.5rem] border border-[#E8E7E2] text-center">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-[#F9F8F6] text-[#B26941] rounded-full flex items-center justify-center mx-auto mb-3"><Truck size={18} /></div>
-              <h3 className="font-outfit text-base md:text-lg font-medium text-[#1A1A1A] mb-1.5">{t.orderOptions.deliveryTitle}</h3>
-              <p className="text-xs md:text-sm text-[#5A5A5A]">{t.aboutFull.deliveryDesc}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Hours & Contact Block (Pre-Map) */}
-        <div className="bg-[#F2F1EC] p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] mt-6 md:mt-10 text-center border border-[#E8E7E2]">
-          <h2 className="font-outfit text-lg md:text-2xl text-[#1A1A1A] font-medium mb-4 md:mb-5">{t.aboutFull.hoursLocationTitle}</h2>
-          <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 mb-6 md:mb-6 text-[#5A5A5A] text-sm md:text-base">
-            <div>
-              <p className="font-medium text-[#1A1A1A] mb-1 md:mb-2">{t.aboutFull.hoursLabel}</p>
-              <p>Mo–Sa: 10:30 – 21:30</p>
-              <p>So: 11:00 – 21:00</p>
-            </div>
-            <div className="hidden md:block w-px h-12 bg-[#E5E5E5]"></div>
-            <div>
-              <p className="font-medium text-[#1A1A1A] mb-1 md:mb-2">{t.aboutFull.locationLabel}</p>
-              <p>Brunnenstraße 1, 73235 Weilheim an der Teck</p>
-              <a href="tel:+4970239424183" className="hover:text-[#B26941] transition-colors">+49 7023 9424183</a>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-3 w-full max-w-sm mx-auto">
-            <button onClick={() => navigateTo('menu')} className="bg-white border border-[#E8E7E2] hover:border-[#B26941] text-[#B26941] px-5 py-3 rounded-full font-medium text-sm transition-all active:scale-95 w-full">
-              {t.hero.btnSecondary}
-            </button>
-            <a href="https://www.lieferando.de" target="_blank" rel="noreferrer" className="bg-[#FFCBA4] hover:bg-[#ffbd8f] text-[#1A1A1A] px-5 py-3 rounded-full font-medium text-sm transition-all active:scale-95 shadow-sm w-full">
-              {t.hero.btnPrimary}
-            </a>
-          </div>
-        </div>
-
-      </div>
-    </section>
+    </div>
   );
+  const [activeFaq, setActiveFaq] = useState(0);
 
-  const ContactPage = () => (
-    <section className="py-6 md:py-12 max-w-6xl mx-auto">
-      <p className="text-[10px] md:text-xs font-bold tracking-[0.25em] uppercase text-[#B26941] mb-2 md:mb-4 text-center">{t.contact.eyebrow}</p>
-      <h1 className="font-outfit text-3xl sm:text-4xl md:text-5xl font-medium tracking-[-0.03em] mb-6 md:mb-10 text-[#111111] text-center">{t.contact.title}</h1>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 lg:gap-12 items-start px-2 md:px-0">
-        
-        {/* Contact Details & FAQ snippet */}
-        <div className="space-y-5 md:space-y-8">
-          <div className="bg-white p-5 md:p-8 rounded-3xl md:rounded-[2rem] shadow-sm border border-[#E8E7E2] space-y-4 md:space-y-6">
-            <div className="flex items-start gap-3 md:gap-4">
-              <MapPin className="text-[#B26941] shrink-0 mt-0.5 md:mt-1 w-5 h-5 md:w-6 md:h-6" />
-              <div>
-                <h3 className="font-outfit font-medium text-base md:text-lg text-[#1A1A1A] mb-0.5">{t.contact.location}</h3>
-                <p className="text-[#5A5A5A] text-sm md:text-base font-light">Brunnenstraße 1<br/>73235 Weilheim an der Teck<br/>Germany</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 md:gap-4">
-              <Phone className="text-[#B26941] shrink-0 mt-0.5 md:mt-1 w-5 h-5 md:w-6 md:h-6" />
-              <div>
-                <h3 className="font-outfit font-medium text-base md:text-lg text-[#1A1A1A] mb-0.5">{t.contact.phone}</h3>
-                <a href="tel:+4970239424183" className="text-[#5A5A5A] text-sm md:text-base font-light hover:text-[#B26941] transition-colors">+49 7023 9424183</a>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 md:gap-4">
-              <Clock className="text-[#B26941] shrink-0 mt-0.5 md:mt-1 w-5 h-5 md:w-6 md:h-6" />
-              <div>
-                <h3 className="font-outfit font-medium text-base md:text-lg text-[#1A1A1A] mb-0.5">{t.contact.hours}</h3>
-                <p className="text-[#5A5A5A] text-sm md:text-base font-light whitespace-pre-line">{t.contact.hoursText}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-[#F2F1EC] p-5 md:p-8 rounded-3xl md:rounded-[2rem] border border-[#E8E7E2]">
-            <h3 className="font-outfit font-medium text-lg md:text-xl text-[#1A1A1A] mb-3 md:mb-4">{t.contact.faqTitle}</h3>
-            <div className="space-y-3 md:space-y-4">
-              {faqs.slice(0,2).map((faq, i) => (
-                <div key={i}>
-                  <h4 className="font-medium text-[#1A1A1A] text-sm md:text-base mb-1">{faq.question}</h4>
-                  <p className="text-[#5A5A5A] font-light text-xs md:text-sm leading-relaxed">{faq.answer}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Contact Form */}
-        <div className="bg-white p-5 md:p-8 rounded-3xl md:rounded-[2rem] shadow-sm border border-[#E8E7E2]">
-          <h2 className="font-outfit text-xl md:text-2xl font-medium mb-4 md:mb-5 text-[#1A1A1A]">{t.contact.formTitle}</h2>
-          <form className="space-y-3 md:space-y-4" onSubmit={(e) => e.preventDefault()}>
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-[#7A7A7A] mb-1 px-1.5">{t.contact.lblName}</label>
-              {/* text-base to prevent iOS Safari auto-zoom on input focus */}
-              <input type="text" className="w-full bg-[#F9F8F6] border border-[#E8E7E2] rounded-xl px-4 py-3 text-base outline-none focus:border-[#B26941] focus:bg-white transition-colors" placeholder={t.contact.plName} />
-            </div>
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-[#7A7A7A] mb-1 px-1.5">{t.contact.lblEmail}</label>
-              <input type="email" className="w-full bg-[#F9F8F6] border border-[#E8E7E2] rounded-xl px-4 py-3 text-base outline-none focus:border-[#B26941] focus:bg-white transition-colors" placeholder={t.contact.plEmail} />
-            </div>
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-[#7A7A7A] mb-1 px-1.5">{t.contact.lblMessage}</label>
-              <textarea rows="4" className="w-full bg-[#F9F8F6] border border-[#E8E7E2] rounded-2xl px-4 py-3 text-base outline-none focus:border-[#B26941] focus:bg-white transition-colors resize-none" placeholder={t.contact.plMessage}></textarea>
-            </div>
-            <button className="w-full bg-[#FFCBA4] hover:bg-[#ffbd8f] text-[#1A1A1A] px-4 py-3 md:py-3.5 rounded-full font-medium text-sm md:text-base transition-all active:scale-95 mt-1">
-              {t.contact.btnSubmit}
-            </button>
-          </form>
-        </div>
-
-      </div>
-    </section>
-  );
-
-  const ReservationPage = () => (
-    <section className="py-6 md:py-12 max-w-3xl mx-auto">
-      <p className="text-[10px] md:text-xs font-bold tracking-[0.25em] uppercase text-[#B26941] mb-2 md:mb-4 text-center">{t.reservation.eyebrow}</p>
-      <h1 className="font-outfit text-3xl sm:text-4xl md:text-5xl font-medium tracking-[-0.03em] mb-3 md:mb-4 text-[#111111] text-center">{t.reservation.title}</h1>
-      <p className="text-[#5A5A5A] text-sm md:text-base mb-5 md:mb-8 font-light text-center max-w-lg mx-auto px-4">
-        {t.reservation.subtitle}
-      </p>
-
-      <div className="bg-white p-5 md:p-8 rounded-3xl md:rounded-[2rem] shadow-sm border border-[#E8E7E2] mx-2 md:mx-0">
-        <form className="space-y-3 md:space-y-4" onSubmit={(e) => e.preventDefault()}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-[#7A7A7A] mb-1 px-1.5">{t.reservation.lblDate}</label>
-              <div className="relative">
-                <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#A0A0A0]" size={16} />
-                <input type="date" className="w-full bg-[#F9F8F6] border border-[#E8E7E2] rounded-xl pl-10 pr-4 py-3 text-base outline-none focus:border-[#B26941] focus:bg-white transition-colors text-[#1A1A1A]" />
-              </div>
-            </div>
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-[#7A7A7A] mb-1 px-1.5">{t.reservation.lblTime}</label>
-              <div className="relative">
-                <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#A0A0A0]" size={16} />
-                <input type="time" className="w-full bg-[#F9F8F6] border border-[#E8E7E2] rounded-xl pl-10 pr-4 py-3 text-base outline-none focus:border-[#B26941] focus:bg-white transition-colors text-[#1A1A1A]" />
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-[#7A7A7A] mb-1 px-1.5">{t.reservation.lblGuests}</label>
-              <div className="relative">
-                <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#A0A0A0]" size={16} />
-                <select className="w-full bg-[#F9F8F6] border border-[#E8E7E2] rounded-xl pl-10 pr-4 py-3 text-base outline-none focus:border-[#B26941] focus:bg-white transition-colors text-[#1A1A1A] appearance-none">
-                  {[1,2,3,4,5,6,7,8,"8+"].map(n => <option key={n} value={n}>{n} {n === 1 ? t.reservation.optPerson : t.reservation.optPeople}</option>)}
-                </select>
-              </div>
-            </div>
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-[#7A7A7A] mb-1 px-1.5">{t.reservation.lblName}</label>
-              <input type="text" className="w-full bg-[#F9F8F6] border border-[#E8E7E2] rounded-xl px-4 py-3 text-base outline-none focus:border-[#B26941] focus:bg-white transition-colors text-[#1A1A1A]" />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-[#7A7A7A] mb-1 px-1.5">{t.reservation.lblPhone}</label>
-              <input type="tel" className="w-full bg-[#F9F8F6] border border-[#E8E7E2] rounded-xl px-4 py-3 text-base outline-none focus:border-[#B26941] focus:bg-white transition-colors text-[#1A1A1A]" placeholder="+49 " />
-            </div>
-            <div>
-              <label className="block text-xs md:text-sm font-medium text-[#7A7A7A] mb-1 px-1.5">{t.reservation.lblEmail}</label>
-              <input type="email" className="w-full bg-[#F9F8F6] border border-[#E8E7E2] rounded-xl px-4 py-3 text-base outline-none focus:border-[#B26941] focus:bg-white transition-colors text-[#1A1A1A]" placeholder="" />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs md:text-sm font-medium text-[#7A7A7A] mb-1 px-1.5">{t.reservation.lblRequests}</label>
-            <textarea rows="3" className="w-full bg-[#F9F8F6] border border-[#E8E7E2] rounded-2xl px-4 py-3 text-base outline-none focus:border-[#B26941] focus:bg-white transition-colors resize-none text-[#1A1A1A]" placeholder={t.reservation.plRequests}></textarea>
-          </div>
-
-          <button className="w-full bg-[#1A1A1A] hover:bg-black text-white px-5 md:px-8 py-3.5 rounded-full font-medium text-sm md:text-base transition-all active:scale-95 mt-1 shadow-md">
-            {t.reservation.btnSubmit}
-          </button>
-          <p className="text-center text-[10px] md:text-xs text-[#7A7A7A] mt-2">{t.reservation.note}</p>
-        </form>
-      </div>
-    </section>
-  );
+  const [activeServiceFilter, setActiveServiceFilter] = useState('all');
 
   return (
-    <div className="min-h-screen bg-[#F9F8F6] text-[#1A1A1A] font-sans selection:bg-[#FFCBA4] selection:text-[#1A1A1A] overflow-x-hidden flex flex-col relative">
+    <>
+      <style dangerouslySetInnerHTML={{ __html: globalCss }} />
       
-      {/* INJECTING PREMIUM FONT & STYLES */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
-        .font-outfit { font-family: 'Outfit', sans-serif; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        html { scroll-behavior: smooth; }
-      `}} />
+      {/* Loader */}
+      {!loaded && (
+        <div id="loader" style={{ transform: loaded ? 'translateY(-100%)' : 'none', opacity: loaded ? 0 : 1 }}>
+          <div className="dots-container">
+            <div className="dot"></div>
+            <div className="dot"></div>
+            <div className="dot"></div>
+          </div>
+        </div>
+      )}
 
-      {/* --- MINIMAL LANGUAGE TOGGLE (FLOATING BOTTOM RIGHT) --- */}
-      <div className="fixed bottom-5 right-5 z-50 bg-white/90 backdrop-blur-md p-1 md:p-1.5 rounded-full shadow-lg border border-[#E5E5E5] flex items-center gap-1">
-        <button 
-          onClick={() => setLang('de')}
-          className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-bold transition-colors ${lang === 'de' ? 'bg-[#1A1A1A] text-white' : 'text-[#7A7A7A] hover:text-[#1A1A1A]'}`}
-        >
-          DE
-        </button>
-        <button 
-          onClick={() => setLang('en')}
-          className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-bold transition-colors ${lang === 'en' ? 'bg-[#1A1A1A] text-white' : 'text-[#7A7A7A] hover:text-[#1A1A1A]'}`}
-        >
-          EN
-        </button>
+      {/* Progress Scroll to Top */}
+      <div 
+        className={`progress-wrap ${scrollProgress < 90 ? 'active-progress' : ''}`} 
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      >
+        <svg className="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+          <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" 
+                style={{ strokeDasharray: '307.919, 307.919', strokeDashoffset: `${(scrollProgress / 100) * 307.919}` }} />
+        </svg>
       </div>
 
-      {/* --- NAVBAR --- */}
-      <nav className="flex justify-between items-center px-5 md:px-12 py-3 md:py-6 max-w-7xl mx-auto w-full relative z-50">
-        <button onClick={() => navigateTo('home')} className="flex-shrink-0 transition-transform active:scale-95">
-          <img 
-            src="final logo.png" 
-            alt="Star Kebap Logo" 
-            className="h-16 md:h-14 w-auto object-contain rounded-xl"
-            onError={(e) => {
-              e.target.onerror = null; 
-              // e.target.src = "https://placehold.co/120x40/000000/FFFFFF?text=STAR+KEBAP";
-              e.target.src = "logo.png"
-            }}
-          />
-        </button>
-        <div className="hidden md:flex gap-8 items-center font-medium text-[#5A5A5A]">
-            <button onClick={() => navigateTo('menu')} className={`hover:text-[#1A1A1A] transition-colors ${currentPage === 'menu' && 'text-[#1A1A1A] border-b-2 border-[#1A1A1A]'}`}>{t.nav.menu}</button>
-            <button onClick={() => navigateTo('about')} className={`hover:text-[#1A1A1A] transition-colors ${currentPage === 'about' && 'text-[#1A1A1A] border-b-2 border-[#1A1A1A]'}`}>{t.nav.about}</button>
-            <button onClick={() => navigateTo('contact')} className={`hover:text-[#1A1A1A] transition-colors ${currentPage === 'contact' && 'text-[#1A1A1A] border-b-2 border-[#1A1A1A]'}`}>{t.nav.contact}</button>
-            <button onClick={() => navigateTo('reservation')} className="bg-[#1A1A1A] text-white px-5 py-2 rounded-full hover:bg-black transition-colors">{t.nav.reservations}</button>
-        </div>
-        <button 
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="p-2 hover:bg-black/5 rounded-full transition-all active:scale-90 md:hidden"
-        >
-          <div className={`transition-transform duration-300 ${isMenuOpen ? 'rotate-90' : 'rotate-0'}`}>
-            {isMenuOpen ? <X size={28} strokeWidth={1.5} /> : <Plus size={28} strokeWidth={1.5} />}
+      {/* Transition Overlay */}
+      <div className="page-transition-overlay"></div>
+
+      {}
+      <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+        <div className="nav-container">
+          <button onClick={() => navigateTo('home')} className="logo" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+            Crisp<span>Dent</span> <sup>®</sup>
+          </button>
+          
+          <ul className={`nav-links ${mobileMenuOpen ? 'active' : ''}`} style={mobileMenuOpen ? { display: 'flex', flexDirection: 'column', position: 'absolute', top: '70px', left: 0, right: 0, background: 'white', padding: '20px', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' } : {}}>
+            <li><button onClick={() => navigateTo('home')} className={activeRoute === 'home' ? 'active' : ''}>Home</button></li>
+            <li><button onClick={() => navigateTo('about')} className={activeRoute === 'about' ? 'active' : ''}>Blogs</button></li>
+            <li><button onClick={() => navigateTo('services')} className={activeRoute === 'services' ? 'active' : ''}>Services</button></li>
+            <li><button onClick={() => navigateTo('about-us')} className={activeRoute === 'about-us' ? 'active' : ''}>About Us</button></li>
+          </ul>
+          
+          <div className="nav-actions">
+            <div className="cart-btn">
+              <ShoppingBag size={20} />
+              <div className="cart-badge">0</div>
+            </div>
+            <button onClick={() => navigateTo('appointments')} className="btn btn-primary btn-nav-animated">
+              Book Appointment <ArrowRight size={18} style={{ marginLeft: 8 }} />
+            </button>
+            <button className="mobile-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              <Menu size={24} />
+            </button>
           </div>
-        </button>
+        </div>
       </nav>
 
-      {/* FULLSCREEN MOBILE MENU OVERLAY */}
-      <div 
-        className={`fixed inset-0 bg-[#F9F8F6] z-40 flex flex-col items-center justify-center text-2xl font-outfit font-medium tracking-tight md:hidden transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none delay-100'
-        }`}
-      >
-        <div className={`flex flex-col items-center space-y-6 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          isMenuOpen ? 'translate-y-0 scale-100 opacity-100 delay-100' : 'translate-y-12 scale-95 opacity-0'
-        }`}>
-          <button onClick={() => { setIsMenuOpen(false); navigateTo('home'); }} className="hover:text-[#A9623F] transition-colors active:scale-95">{t.nav.home}</button>
-          <button onClick={() => { setIsMenuOpen(false); navigateTo('menu'); }} className="hover:text-[#A9623F] transition-colors active:scale-95">{t.nav.menu}</button>
-          <button onClick={() => { setIsMenuOpen(false); navigateTo('reservation'); }} className="hover:text-[#A9623F] transition-colors active:scale-95">{t.nav.reservations}</button>
-          <button onClick={() => { setIsMenuOpen(false); navigateTo('about'); }} className="hover:text-[#A9623F] transition-colors active:scale-95">{t.nav.about}</button>
-          <button onClick={() => { setIsMenuOpen(false); navigateTo('contact'); }} className="hover:text-[#A9623F] transition-colors active:scale-95">{t.nav.contact}</button>
-        </div>
-      </div>
-
-      {/* --- MAIN CONTENT AREA (ROUTING) --- */}
-      <main className="w-full flex-grow px-4 md:px-12">
-        {currentPage === 'home' && <HomePage />}
-        {currentPage === 'menu' && <MenuPage />}
-        {currentPage === 'about' && <AboutPage />}
-        {currentPage === 'contact' && <ContactPage />}
-        {currentPage === 'reservation' && <ReservationPage />}
-
-        {/* --- GLOBAL LIVE LOCATION SECTION (Rendered on Home, About, Contact) --- */}
-        {/* SECTION 7 - MAP INTEGRATION */}
-        {['home', 'about', 'contact'].includes(currentPage) && (
-          <section className="py-10 md:py-16 text-center max-w-7xl mx-auto w-full">
-            <div className="relative w-full h-[400px] md:h-[650px] rounded-3xl md:rounded-[3rem] overflow-hidden bg-[#e5e3df] mx-auto max-w-5xl shadow-sm border border-[#F0F0F0]">
-              <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2642.483168864947!2d9.535899912061405!3d48.61462007119044!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47999553b3b4f9db%3A0xc3fec3f0f7cf14e7!2sBrunnenstra%C3%9Fe%201%2C%2073235%20Weilheim%20an%20der%20Teck%2C%20Germany!5e0!3m2!1sen!2sus!4v1714480000000!5m2!1sen!2sus" 
-                width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="w-full h-full object-cover grayscale-[20%] opacity-90"
-              ></iframe>
+      <main id="main-content">
+        {/* ==========================================
+            PAGE: HOME
+            ========================================== */}
+        {}
+        <div className={`page-section ${activeRoute === 'home' ? 'active' : ''}`}>
+          <section className="hero">
+            <div className="container hero-content-wrapper">
+              <div className="hero-badge-top reveal">
+                <div className="avatar-group">
+                  <img src="https://picsum.photos/seed/user1/60/60" alt="User" />
+                  <img src="https://picsum.photos/seed/user2/60/60" alt="User" />
+                  <img src="https://picsum.photos/seed/user3/60/60" alt="User" />
+                  <img src="https://picsum.photos/seed/user4/60/60" alt="User" />
+                </div>
+                Trusted by 115k+ people
+              </div>
               
-              <div className="absolute bottom-5 md:bottom-10 left-1/2 -translate-x-1/2 w-[90%] md:w-auto bg-white/95 backdrop-blur-md rounded-3xl md:rounded-[2rem] p-5 md:px-12 md:py-8 text-center shadow-2xl border border-white/50">
-                <p className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] uppercase text-[#5A5A5A] mb-1.5 md:mb-2">{t.footer.locatedAt}</p>
-                <p className="font-outfit text-base md:text-2xl font-medium mb-4 md:mb-5 text-[#111111]">Brunnenstraße 1, Weilheim</p>
-                <a href="https://maps.google.com/?q=Brunnenstraße+1,+73235+Weilheim+an+der+Teck" target="_blank" rel="noreferrer" className="inline-block border border-[#E5E5E5] hover:border-[#B26941] text-[#B26941] px-6 md:px-8 py-2.5 md:py-3 rounded-full text-sm md:text-base font-medium transition-colors active:scale-95">
-                  {t.footer.openInMaps}
-                </a>
+              <AnimatedHeroTitle text="Your Smile. Transformed in One Visit." />
+              
+              <p className="hero-desc text-large reveal delay-1" style={{ marginBottom: 'var(--spacing-xl)' }}>
+                Advanced dental care for the whole family — painless, precise, and built around your schedule.
+              </p>
+              
+              <div className="hero-buttons reveal delay-2">
+                <button onClick={() => navigateTo('appointments')} className="btn btn-white">
+                  Book Your Free Consultation <ArrowRight size={20} />
+                </button>
+                <button onClick={() => navigateTo('gallery')} className="btn btn-glass">
+                  See Our Work <ArrowDown size={20} />
+                </button>
+              </div>
+              
+              <div className="hero-trust-line reveal delay-3" style={{ marginTop: 'var(--spacing-md-l)', color: 'var(--white)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-xs)' }}><Star fill="#F59E0B" color="#F59E0B" size={20} /> 4.9 Rating</span>
+                <span style={{ opacity: 0.5 }}>|</span> 
+                <span>1,200+ Patients Treated</span>
+                <span style={{ opacity: 0.5 }}>|</span> 
+                <span>0% EMI Available</span>
+              </div>
+
+              <div className="hero-right-cards reveal delay-3">
+                <div className="card glass-card-square">
+                  <h5>Trusted Rate</h5>
+                  <h2>98%</h2>
+                  <p>Our clients love us and are consistently satisfied with our care.</p>
+                </div>
+                <div className="glass-card-tags">
+                  <div className="tag-pill">Empowering <Plus size={18} /></div>
+                  <div className="tag-pill active">Individualizing</div>
+                  <div className="tag-pill">Revolutionizing <Plus size={18} /></div>
+                </div>
               </div>
             </div>
           </section>
-        )}
 
-        {/* --- HOMEPAGE FAQ SECTION (Rendered only on Home, under the map) --- */}
-        {currentPage === 'home' && <HomeFAQSection />}
-      </main>
-
-      {/* --- ELEGANT DARK FOOTER --- */}
-      {/* SECTION 8 - FOOTER */}
-      <footer className="mt-auto bg-[#141414] text-[#F9F8F6] pt-12 md:pt-16 pb-8 md:pb-10 px-6 md:px-12 rounded-t-3xl md:rounded-t-[3rem] shadow-[0_-10px_40px_rgba(0,0,0,0.05)] w-full">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8">
-          
-          <div className="md:col-span-6 flex flex-col items-start">
-             <img 
-               src="logo.png" 
-               alt="Star Kebap Logo" 
-               className="h-20 md:h-16 w-auto object-contain mb-6 md:mb-8 rounded-2xl"
-               onError={(e) => {
-                 e.target.onerror = null; 
-                 e.target.src = "https://placehold.co/200x60/141414/FFFFFF?text=STAR+KEBAP";
-               }}
-             />
-            <div className="text-base md:text-xl font-light space-y-4 md:space-y-6 text-[#A0A0A0]">
-              <p className="hover:text-white transition-colors cursor-default">Brunnenstraße 1, 73235 Weilheim an der Teck</p>
-              <div>
-                <p>Mo–Sa: 10:30–21:30</p>
-                <p className="text-[#FFCBA4]">So: 11:00–21:00</p>
+          <div className="ticker-section">
+            <h4 className="ticker-title">Powered by World-Class Dental Technology</h4>
+            <div className="ticker-wrap">
+              <div className="ticker-items">
+                <div className="ticker-logo">InvisaClear <sup>®</sup></div>
+                <div className="ticker-logo"><Box size={32} color="var(--primary)" /> SmileTech</div>
+                <div className="ticker-logo">LumiWhite</div>
+                <div className="ticker-logo">CarePlus.</div>
+                <div className="ticker-logo"><Triangle size={32} color="var(--navy)" fill="var(--navy)" /> AeroDent</div>
+                <div className="ticker-logo">DentaCore <sup>®</sup></div>
               </div>
-              <a href="tel:+4970239424183" className="block font-medium text-white hover:text-[#FFCBA4] transition-colors">
-                +49 7023 9424183
-              </a>
+              <div className="ticker-items">
+                <div className="ticker-logo">InvisaClear <sup>®</sup></div>
+                <div className="ticker-logo"><Box size={32} color="var(--primary)" /> SmileTech</div>
+                <div className="ticker-logo">LumiWhite</div>
+                <div className="ticker-logo">CarePlus.</div>
+                <div className="ticker-logo"><Triangle size={32} color="var(--navy)" fill="var(--navy)" /> AeroDent</div>
+                <div className="ticker-logo">DentaCore <sup>®</sup></div>
+              </div>
             </div>
           </div>
 
-          <div className="md:col-span-3">
-            <p className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] uppercase text-[#6A6A6A] mb-4 md:mb-6">{t.footer.social}</p>
-            <ul className="space-y-2 md:space-y-3 text-base md:text-lg font-light text-[#A0A0A0]">
-              <li><a href="https://www.facebook.com/p/Star-Kebap-und-Pizzahaus-100064926242909/" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Facebook</a></li>
-              <li><a href="https://www.instagram.com/starkebappizzahaus/" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Instagram</a></li>
-            </ul>
-          </div>
+          <section className="section bg-light" style={{ overflow: 'hidden', position: 'relative', paddingTop: 'var(--spacing-3xl)', paddingBottom: 'var(--spacing-3xl)' }}>
+            <div className="bg-gradient-glow"></div>
+            <div className="container relative" style={{ zIndex: 1 }}>
+              <div className="text-center reveal" style={{ maxWidth: 600, margin: '0 auto var(--spacing-2xl)' }}>
+                <span className="badge-pill">Services</span>
+                <h2 className="text-h2" style={{ marginBottom: 'var(--spacing-md)' }}>Your Personalized<br />Dental Care</h2>
+                <p className="text-large" style={{ color: 'var(--text-muted)' }}>Comprehensive dental care tailored to keep your smile healthy and bright.</p>
+              </div>
+              
+              <div className="grid grid-cols-3 reveal delay-1">
+                <div className="service-card-new">
+                  <div className="service-icon-new"><Stethoscope size={28} /></div>
+                  <h3 className="text-h4" style={{ marginBottom: 'var(--spacing-sm)' }}>General Dentistry</h3>
+                  <p style={{ color: 'var(--text-muted)' }}>Regular check-ups and professional cleanings to maintain your oral health and prevent future issues.</p>
+                </div>
+                <div className="service-card-new">
+                  <div className="service-icon-new"><ShieldCheck size={28} /></div>
+                  <h3 className="text-h4" style={{ marginBottom: 'var(--spacing-sm)' }}>Dental Implants</h3>
+                  <p style={{ color: 'var(--text-muted)' }}>Replace missing teeth with durable, natural-looking implants for a complete smile.</p>
+                </div>
+                <div className="service-card-new">
+                  <div className="service-icon-new"><Baby size={28} /></div>
+                  <h3 className="text-h4" style={{ marginBottom: 'var(--spacing-sm)' }}>Pediatric Dentistry</h3>
+                  <p style={{ color: 'var(--text-muted)' }}>Friendly, gentle dental care to ensure your child's visits are comfortable, enjoyable, and stress-free.</p>
+                </div>
+                <div className="service-card-new">
+                  <div className="service-icon-new"><LayoutGrid size={28} /></div>
+                  <h3 className="text-h4" style={{ marginBottom: 'var(--spacing-sm)' }}>Orthodontics</h3>
+                  <p style={{ color: 'var(--text-muted)' }}>Straighten your teeth and align your bite. Services include traditional braces, clear aligners.</p>
+                </div>
+                <div className="service-card-new">
+                  <div className="service-icon-new"><Sparkles size={28} /></div>
+                  <h3 className="text-h4" style={{ marginBottom: 'var(--spacing-sm)' }}>Cosmetic Dentistry</h3>
+                  <p style={{ color: 'var(--text-muted)' }}>Enhance the appearance of your smile with treatments tailored to boost your confidence impression.</p>
+                </div>
+                <div className="service-card-new">
+                  <div className="service-icon-new"><HeartPulse size={28} /></div>
+                  <h3 className="text-h4" style={{ marginBottom: 'var(--spacing-sm)' }}>Emergency Care</h3>
+                  <p style={{ color: 'var(--text-muted)' }}>Immediate relief for unexpected dental problems like toothaches, broken teeth, or injuries.</p>
+                </div>
+              </div>
+            </div>
+          </section>
 
-          <div className="md:col-span-3">
-            <p className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] uppercase text-[#6A6A6A] mb-4 md:mb-6">{t.footer.navigation}</p>
-            <ul className="space-y-2 md:space-y-3 text-base md:text-lg font-light text-[#A0A0A0]">
-              <li><button onClick={() => navigateTo('home')} className="hover:text-white transition-colors">{t.nav.home}</button></li>
-              <li><button onClick={() => navigateTo('menu')} className="hover:text-white transition-colors">{t.nav.menu}</button></li>
-              <li><button onClick={() => navigateTo('reservation')} className="hover:text-white transition-colors">{t.nav.reservations}</button></li>
-              <li><button onClick={() => navigateTo('about')} className="hover:text-white transition-colors">{t.nav.about}</button></li>
-              <li><button onClick={() => navigateTo('contact')} className="hover:text-white transition-colors">{t.nav.contact}</button></li>
-            </ul>
-          </div>
+          {}
+          <section className="section" style={{ overflow: 'hidden', paddingTop: 'var(--spacing-3xl)', paddingBottom: 'var(--spacing-3xl)' }}>
+            <div className="container speciality-split">
+              <div className="speciality-img-wrapper reveal">
+                <div className="speciality-img-offset"></div>
+                <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=1000&q=80" alt="Confident patient with a bright smile" className="speciality-img" />
+                
+                <div className="trust-badge-float">
+                  <div style={{ width: 56, height: 56, background: 'var(--primary)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)' }}>
+                    <Sparkles size={28} />
+                  </div>
+                  <div>
+                    <p style={{ fontSize: 24, fontWeight: 800, color: 'var(--navy)', lineHeight: 1 }}>100%</p>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-muted)', marginTop: 4 }}>Smile Satisfaction</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="reveal delay-1">
+                <span className="badge-pill" style={{ background: '#EFF6FF', borderColor: '#DBEAFE' }}>Speciality</span>
+                <h2 className="text-h2" style={{ marginBottom: 'var(--spacing-lg)' }}>Our Speciality:<br />Smile Transformations</h2>
+                
+                <ul className="speciality-list">
+                  <li className="speciality-list-item">
+                    <div className="speciality-list-icon"><CheckCircle size={16} /></div>
+                    <span className="text-large" style={{ color: 'var(--text-main)', fontWeight: 500 }}>Tailored treatments to enhance your unique smile.</span>
+                  </li>
+                  <li className="speciality-list-item">
+                    <div className="speciality-list-icon"><CheckCircle size={16} /></div>
+                    <span className="text-large" style={{ color: 'var(--text-main)', fontWeight: 500 }}>State-of-the-art tools for precise and effective results.</span>
+                  </li>
+                  <li className="speciality-list-item">
+                    <div className="speciality-list-icon"><CheckCircle size={16} /></div>
+                    <span className="text-large" style={{ color: 'var(--text-main)', fontWeight: 500 }}>Combining cosmetic, orthodontic, and restorative procedures.</span>
+                  </li>
+                </ul>
+                
+                <button onClick={() => navigateTo('appointments')} className="btn btn-primary" style={{ boxShadow: '0 8px 20px -6px rgba(37,99,235,0.5)' }}>
+                  Know More <ArrowRight size={20} />
+                </button>
+              </div>
+            </div>
+          </section>
 
+          {}
+          <section className="expert-care-section">
+            <div className="bg-gradient-glow" style={{ width: '60%', height: '60%', top: '20%', left: '60%' }}></div>
+            <div className="container expert-care-grid">
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', maxWidth: 600 }}>
+                <div className="serving-badge reveal">
+                  <span className="serving-dot-wrap">
+                    <span className="serving-dot-ping"></span>
+                    <span className="serving-dot"></span>
+                  </span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Serving since 2010</span>
+                </div>
+                
+                <h2 className="text-h2 reveal delay-1" style={{ marginBottom: 'var(--spacing-md-l)' }}>
+                  Expert dental care for <span className="expert-title-highlight">every stage</span><br />of life
+                </h2>
+                
+                <p className="text-large reveal delay-2" style={{ color: 'var(--text-muted)', marginBottom: 'var(--spacing-xl)', lineHeight: 1.7 }}>
+                  We offer personalized, high-quality care in a welcoming environment. Whether you're in for a check-up or a smile makeover, your comfort and satisfaction are top priority.
+                </p>
+                
+                <div className="hero-buttons reveal delay-3" style={{ width: '100%', flexWrap: 'wrap', marginBottom: 'var(--spacing-2xl)' }}>
+                  <button onClick={() => navigateTo('services')} className="btn btn-primary btn-animated-fill" style={{ padding: '0 32px' }}>
+                    <span>See what we offer</span> <ArrowRight size={20} />
+                  </button>
+                  <button onClick={() => navigateTo('appointments')} className="btn btn-outline" style={{ padding: '0 32px' }}>Contact us</button>
+                </div>
+              </div>
+              
+              <div className="expert-collage reveal delay-2">
+                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '70%', height: '70%', background: 'radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%)', filter: 'blur(30px)', borderRadius: '50%', zIndex: 0 }}></div>
+                <img src="https://framerusercontent.com/images/ZSWOCuXfIBUW1dA0PJ4knsL6XyA.png" className="collage-img collage-img-1" alt="Adult female smiling" />
+                <img src="https://framerusercontent.com/images/T8kux1BplKrqMaFqTpYuLSUuw.png" className="collage-img collage-img-2" alt="Child smiling" />
+                <img src="https://framerusercontent.com/images/bB9GVHLY4XsNM7W4jtt46ZolGk.png" className="collage-img collage-img-3" alt="Teenager smiling" />
+                <img src="https://framerusercontent.com/images/bJLDhsAVtZl5MFyNaYx2Cl8vBE.png" className="collage-img collage-img-4" alt="Adult male" />
+                
+                <div className="collage-badge">
+                  <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
+                    <Smile size={24} />
+                  </div>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 800, color: 'var(--navy)', whiteSpace: 'nowrap', marginBottom: 2 }}>Personalized Care</p>
+                    <p style={{ fontSize: 12, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>For your unique smile</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {}
+          <section className="section">
+            <div className="container">
+              <div className="grid grid-cols-appoint appointment-layout reveal delay-1">
+                <div className="appointment-text">
+                  <h1 className="text-h1">Schedule your<br />visit with us</h1>
+                  <p className="text-large">Select your preferred date and time. Our team will get back to you shortly to confirm your schedule.</p>
+                  
+                  <div className="social-round" style={{ marginTop: 'var(--spacing-xl)' }}>
+                    <a href="#" style={{ background: 'var(--bg-light)' }}><Facebook size={24} /></a>
+                    <a href="#" style={{ background: 'var(--bg-light)' }}><Linkedin size={24} /></a>
+                    <a href="#" style={{ background: 'var(--bg-light)' }}><Instagram size={24} /></a>
+                  </div>
+                </div>
+                
+                <div className="appointment-form">
+                  <form onSubmit={(e) => e.preventDefault()} noValidate>
+                    <div className="grid grid-cols-2">
+                      <div className="form-group">
+                        <input type="text" className="form-control" placeholder=" " required />
+                        <label className="form-label">First Name</label>
+                      </div>
+                      <div className="form-group">
+                        <input type="text" className="form-control" placeholder=" " required />
+                        <label className="form-label">Last Name</label>
+                      </div>
+                      <div className="form-group">
+                        <input type="email" className="form-control" placeholder=" " required />
+                        <label className="form-label">Email Address</label>
+                      </div>
+                      <div className="form-group">
+                        <input type="tel" className="form-control" placeholder=" " required />
+                        <label className="form-label">Phone Number</label>
+                      </div>
+                      <div className="form-group full-width">
+                        <div style={{ position: 'relative' }}>
+                          <select className="form-control" style={{ appearance: 'none' }} required defaultValue="">
+                            <option value="" disabled hidden></option>
+                            <option value="cleaning">Teeth Cleaning</option>
+                            <option value="whitening">Teeth Whitening</option>
+                            <option value="implants">Dental Implants</option>
+                            <option value="orthodontics">Orthodontics</option>
+                          </select>
+                          <label className="form-label">Service Type</label>
+                          <ChevronDown size={20} style={{ position: 'absolute', right: 'var(--spacing-md)', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                        </div>
+                      </div>
+
+                      {/* Custom Calendar Component */}
+                      <div className="form-group full-width">
+                        <span className="form-label" style={{position:'static', display:'block', marginBottom:'8px'}}>Date & Time</span>
+                        <div className="calendar-time-wrapper">
+                          <div className="card custom-calendar">
+                            <div className="calendar-header">
+                              <button type="button" className="calendar-btn" onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}><ChevronLeft size={20} /></button>
+                              <h4>{monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}</h4>
+                              <button type="button" className="calendar-btn" onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}><ChevronRight size={20} /></button>
+                            </div>
+                            <div className="calendar-days-grid">
+                              <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                            </div>
+                            <div className="calendar-dates-grid">
+                              {renderCalendarDays()}
+                            </div>
+                          </div>
+
+                          <div className="time-slots">
+                            {['09:00 AM', '10:00 AM', '11:30 AM', '01:00 PM', '02:30 PM', '04:00 PM'].map((slot) => (
+                              <button 
+                                key={slot} 
+                                type="button" 
+                                className={`time-slot ${selectedTimeSlot === slot ? 'selected' : ''}`}
+                                onClick={() => setSelectedTimeSlot(slot)}
+                              >
+                                {slot}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="form-group full-width" style={{ marginTop: 'var(--spacing-md)' }}>
+                        <button type="submit" className="btn btn-primary btn-animated-fill" style={{ width: '100%', justifyContent: 'center' }}>
+                          <span>Confirm Appointment</span> <ArrowRight size={20} />
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="section bg-light">
+            <div className="container">
+              <div className="section-header text-center reveal">
+                <h2 className="section-title text-h2">Frequently Asked Questions</h2>
+                <p className="section-subtitle text-large">Find quick answers to common questions about our services and care.</p>
+              </div>
+              
+              <div className="faq-container reveal delay-1">
+                <FAQItem 
+                  question="What should I expect during my first visit?" 
+                  answer="Your first visit will include a comprehensive oral examination, digital X-rays if necessary, and a consultation with our experts to discuss your dental health goals and create a personalized treatment plan tailored specifically for you."
+                  isOpen={activeFaq === 0} onClick={() => setActiveFaq(activeFaq === 0 ? null : 0)} 
+                />
+                <FAQItem 
+                  question="Do you offer payment plans or accept insurance?" 
+                  answer="Yes! We accept most major dental insurance plans. For out-of-pocket expenses or cosmetic procedures not covered by insurance, we offer flexible, interest-free financing options to ensure your care is affordable."
+                  isOpen={activeFaq === 1} onClick={() => setActiveFaq(activeFaq === 1 ? null : 1)} 
+                />
+                <FAQItem 
+                  question="Are teeth whitening treatments safe?" 
+                  answer="Absolutely. Professional teeth whitening at CrispDent is closely monitored by our dental experts. We use specialized, medical-grade formulas and protective barriers to ensure zero damage to your enamel while minimizing tooth sensitivity."
+                  isOpen={activeFaq === 2} onClick={() => setActiveFaq(activeFaq === 2 ? null : 2)} 
+                />
+              </div>
+            </div>
+          </section>
         </div>
-        
-        <div className="max-w-7xl mx-auto mt-10 md:mt-16 pt-5 md:pt-6 border-t border-white/10 text-center text-[#6A6A6A] text-xs md:text-sm">
-          <p>© {new Date().getFullYear()} Star Kebap & Pizza Haus. Inhaber: Mehmet Korkmaz. {t.footer.rights}</p>
+
+        {/* ==========================================
+            PAGE: SERVICES
+            ========================================== */}
+        {}
+        <div className={`page-section ${activeRoute === 'services' ? 'active' : ''}`}>
+          <header className="page-header">
+            <div className="page-header-glow"></div>
+            <div className="container reveal">
+              <span className="badge-pill" style={{ background: 'var(--white)', borderColor: 'var(--border)' }}>Treatments</span>
+              <h1 className="text-h1">Dental Solutions for Every Stage of Life</h1>
+              <p className="text-large">From routine cleanings to complete smile makeovers — we've got it all, handled by specialists.</p>
+            </div>
+          </header>
+
+          <section className="section">
+            <div className="container">
+              <div className="reveal text-center" style={{ marginBottom: 'var(--spacing-3xl)' }}>
+                <div style={{ background: 'var(--border)', padding: 4, borderRadius: 'var(--radius-pill)', display: 'inline-flex', gap: 4, overflowX: 'auto', maxWidth: '100%', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.03)' }}>
+                  {['all', 'cosmetic', 'restorative', 'preventive', 'kids'].map(filter => (
+                    <button key={filter} className={`tab-btn ${activeServiceFilter === filter ? 'active' : ''}`} onClick={() => setActiveServiceFilter(filter)}>
+                      {filter === 'all' ? 'All Services' : filter.charAt(0).toUpperCase() + filter.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                {/* Condition blocks based on filters */}
+                {['all', 'cosmetic'].includes(activeServiceFilter) && (
+                  <div className="service-detail-block reveal delay-1">
+                    <div className="service-block-content">
+                      <span className="badge-pill" style={{ marginBottom: 'var(--spacing-sm)' }}>Cosmetic</span>
+                      <h2 className="text-h2" style={{ marginBottom: 'var(--spacing-md)', lineHeight: 1.1 }}>Hollywood-Bright Teeth in 60 Minutes</h2>
+                      <p className="text-large" style={{ color: 'var(--text-muted)', marginBottom: 'var(--spacing-md-l)' }}>Stained or yellowed teeth hold back your confidence more than you realize. Our in-clinic whitening treatment uses professional-grade bleaching gel activated by LED light — giving you 6–8 shades brighter teeth in a single session. Safe, fast, and long-lasting.</p>
+                      
+                      <p style={{ fontSize: 22, fontWeight: 800, color: 'var(--navy)', marginBottom: 'var(--spacing-md-l)' }}>Starting From: ₹4,999</p>
+                      <button onClick={() => navigateTo('appointments')} className="btn btn-primary btn-animated-fill">
+                        <span>Book Whitening Session</span> <ArrowRight size={20} />
+                      </button>
+                    </div>
+                    <div className="service-block-image">
+                      <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=800&q=80" alt="Teeth Whitening" style={{ borderRadius: 'var(--radius-lg)', width: '100%', objectFit: 'cover', boxShadow: 'var(--shadow-lg)', aspectRatio: '4/3' }} />
+                    </div>
+                  </div>
+                )}
+
+                {['all', 'restorative'].includes(activeServiceFilter) && (
+                  <div className="service-detail-block reverse reveal delay-1">
+                    <div className="service-block-content">
+                      <span className="badge-pill" style={{ marginBottom: 'var(--spacing-sm)' }}>Restorative</span>
+                      <h2 className="text-h2" style={{ marginBottom: 'var(--spacing-md)', lineHeight: 1.1 }}>Permanent Teeth That Look, Feel, and Work Like Real Ones</h2>
+                      <p className="text-large" style={{ color: 'var(--text-muted)', marginBottom: 'var(--spacing-md-l)' }}>Missing teeth affect more than your appearance — they impact how you eat, speak, and age. Dental implants are the gold standard replacement.</p>
+                      <p style={{ fontSize: 22, fontWeight: 800, color: 'var(--navy)', marginBottom: 'var(--spacing-md-l)' }}>Starting From: ₹25,000 per implant</p>
+                      <button onClick={() => navigateTo('appointments')} className="btn btn-primary btn-animated-fill">
+                        <span>Get Implant Consultation</span> <ArrowRight size={20} />
+                      </button>
+                    </div>
+                    <div className="service-block-image">
+                      <img src="https://images.unsplash.com/photo-1598256989800-fea5f6c8d0ea?auto=format&fit=crop&w=800&q=80" alt="Dental Implants" style={{ borderRadius: 'var(--radius-lg)', width: '100%', objectFit: 'cover', boxShadow: 'var(--shadow-lg)', aspectRatio: '4/3' }} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* ==========================================
+            PAGE: ABOUT & BLOGS
+            ========================================== */}
+        {}
+        <div className={`page-section ${activeRoute === 'about' ? 'active' : ''}`}>
+          <header className="page-header">
+            <div className="page-header-glow"></div>
+            <div className="container reveal">
+              <span className="badge-pill" style={{ background: 'var(--white)', borderColor: 'var(--border)' }}>Our Journal</span>
+              <h1 className="text-h1">Our Story & Insights</h1>
+              <p className="text-large">Get to know the experts behind CrispDent and stay updated with our latest dental tips.</p>
+            </div>
+          </header>
+
+          <section className="section bg-light">
+            <div className="container">
+              <div className="section-header text-center reveal">
+                <h2 className="section-title text-h2">Meet Our Experts</h2>
+                <p className="section-subtitle text-large">A team of highly qualified specialists dedicated to your oral health.</p>
+              </div>
+              <div className="grid grid-cols-3 reveal delay-1">
+                <div className="card">
+                  <img src="https://picsum.photos/seed/doctor11/400/533" alt="Dr. Sarah Jenkins" className="img-doctor" />
+                  <h3 className="text-h3" style={{ marginTop: 'var(--spacing-md)' }}>Dr. Sarah Jenkins</h3>
+                  <p style={{ color: 'var(--primary)', fontWeight: 600, fontSize: 16 }}>Lead Orthodontist</p>
+                </div>
+                <div className="card">
+                  <img src="https://picsum.photos/seed/doctor22/400/533" alt="Dr. Michael Reynolds" className="img-doctor" />
+                  <h3 className="text-h3" style={{ marginTop: 'var(--spacing-md)' }}>Dr. Michael Reynolds</h3>
+                  <p style={{ color: 'var(--primary)', fontWeight: 600, fontSize: 16 }}>Endodontist</p>
+                </div>
+                <div className="card">
+                  <img src="https://picsum.photos/seed/doctor33/400/533" alt="Dr. Emily Chen" className="img-doctor" />
+                  <h3 className="text-h3" style={{ marginTop: 'var(--spacing-md)' }}>Dr. Emily Chen</h3>
+                  <p style={{ color: 'var(--primary)', fontWeight: 600, fontSize: 16 }}>Pediatric Dentist</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* ==========================================
+            PAGE: ABOUT US 
+            ========================================== */}
+        <div className={`page-section ${activeRoute === 'about-us' ? 'active' : ''}`}>
+          <header className="page-header">
+            <div className="page-header-glow"></div>
+            <div className="container reveal">
+              <span className="badge-pill" style={{ background: 'var(--white)', borderColor: 'var(--border)' }}>Company Profile</span>
+              <h1 className="text-h1">Our Story</h1>
+              <p className="text-large">A legacy of smiles, built on trust, innovation, and compassion.</p>
+            </div>
+          </header>
+          
+          <section className="section bg-light">
+            <div className="container">
+              <div className="section-header text-center reveal">
+                <h2 className="section-title text-h2">Our Core Values</h2>
+                <p className="section-subtitle text-large">The principles that guide every procedure, every consultation, and every smile.</p>
+              </div>
+              <div className="grid grid-cols-3 reveal delay-1">
+                <div className="service-card-new">
+                  <div className="service-icon-new"><HeartHandshake size={28} /></div>
+                  <h3 className="text-h4" style={{ marginBottom: 'var(--spacing-sm)' }}>Radical Empathy</h3>
+                  <p style={{ color: 'var(--text-muted)' }}>We listen before we treat. Understanding your anxieties, goals, and financial constraints is just as important as the clinical diagnosis.</p>
+                </div>
+                <div className="service-card-new">
+                  <div className="service-icon-new"><Microscope size={28} /></div>
+                  <h3 className="text-h4" style={{ marginBottom: 'var(--spacing-sm)' }}>Clinical Excellence</h3>
+                  <p style={{ color: 'var(--text-muted)' }}>We heavily invest in continuous education and state-of-the-art technology to ensure you receive the safest treatments available globally.</p>
+                </div>
+                <div className="service-card-new">
+                  <div className="service-icon-new"><ShieldCheck size={28} /></div>
+                  <h3 className="text-h4" style={{ marginBottom: 'var(--spacing-sm)' }}>Absolute Integrity</h3>
+                  <p style={{ color: 'var(--text-muted)' }}>No hidden fees, no unnecessary procedures, and no rushing. We recommend what you actually need.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* ==========================================
+            PAGE: APPOINTMENTS
+            ========================================== */}
+        <div className={`page-section ${activeRoute === 'appointments' ? 'active' : ''}`}>
+          <section className="section" style={{ paddingTop: 'var(--spacing-4xl)' }}>
+            <div className="container">
+              <div className="grid grid-cols-appoint appointment-layout reveal delay-1">
+                <div className="appointment-text">
+                  <h1 className="text-h1">Book your<br />appointment<br />today!</h1>
+                  <p className="text-large">Our team is here to help you. We care about your health and we'll get back to you within 24 hours.</p>
+                </div>
+                
+                <div className="appointment-form">
+                  <form onSubmit={(e) => e.preventDefault()} noValidate>
+                    <div className="grid grid-cols-2">
+                      <div className="form-group">
+                        <input type="text" className="form-control" placeholder=" " required />
+                        <label className="form-label">First Name</label>
+                      </div>
+                      <div className="form-group">
+                        <input type="text" className="form-control" placeholder=" " required />
+                        <label className="form-label">Last Name</label>
+                      </div>
+                      <div className="form-group full-width" style={{ marginTop: 'var(--spacing-md)' }}>
+                        <button type="submit" className="btn btn-primary btn-animated-fill" style={{ width: '100%', justifyContent: 'center' }}>
+                          <span>Submit Request</span> <ArrowRight size={20} />
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* ==========================================
+            PAGE: GALLERY
+            ========================================== */}
+        <div className={`page-section ${activeRoute === 'gallery' ? 'active' : ''}`}>
+          <header className="page-header">
+            <div className="page-header-glow"></div>
+            <div className="container reveal">
+              <span className="badge-pill" style={{ background: 'var(--white)', borderColor: 'var(--border)' }}>Portfolio</span>
+              <h1 className="text-h1">Smile Gallery</h1>
+            </div>
+          </header>
+          <section className="section bg-light">
+            <div className="container">
+              <div className="grid grid-cols-3 reveal delay-1">
+                {/* Sample before/after components */}
+                <div className="card">
+                  <div style={{ display: 'flex', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-md)' }}>
+                    <img src="https://picsum.photos/seed/before1/300/300" alt="Before" style={{ width: '50%', height: 'auto', borderRadius: 'var(--radius-md)' }} />
+                    <img src="https://picsum.photos/seed/after1/300/300" alt="After" style={{ width: '50%', height: 'auto', borderRadius: 'var(--radius-md)' }} />
+                  </div>
+                  <h3 className="text-h3">Laser Teeth Whitening</h3>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      {}
+      <footer className="shadcn-footer">
+        <div className="container">
+          <div className="grid grid-cols-4 footer-grid-new reveal delay-1">
+            <div className="footer-brand">
+              <button onClick={() => navigateTo('home')} className="logo" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                <Activity color="var(--primary)" size={32} /> Crisp<span>Dent</span> <sup>®</sup>
+              </button>
+              <p className="tagline">Premium dental care made easy.</p>
+            </div>
+            
+            <div className="footer-col-new">
+              <h3 className="text-h4">Services</h3>
+              <ul>
+                <li><button onClick={() => navigateTo('services')}>Teeth Whitening</button></li>
+                <li><button onClick={() => navigateTo('services')}>Dental Implants</button></li>
+                <li><button onClick={() => navigateTo('services')}>Orthodontics</button></li>
+              </ul>
+            </div>
+            
+            <div className="footer-col-new">
+              <h3 className="text-h4">Company</h3>
+              <ul>
+                <li><button onClick={() => navigateTo('about-us')}>About Us</button></li>
+                <li><button onClick={() => navigateTo('appointments')}>Contact</button></li>
+                <li><button onClick={() => navigateTo('gallery')}>Smile Gallery</button></li>
+              </ul>
+            </div>
+            
+            <div className="footer-col-new">
+              <h3 className="text-h4">Social</h3>
+              <ul>
+                <li><a href="#">Instagram</a></li>
+                <li><a href="#">LinkedIn</a></li>
+                <li><a href="#">Facebook</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="footer-bottom-new reveal delay-2">
+            <p>© 2026 CrispDent Dental Clinic. All rights reserved.</p>
+            <ul className="bottom-links">
+              <li><a href="#">Terms and Conditions</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+            </ul>
+          </div>
         </div>
       </footer>
-
-    </div>
+    </>
   );
-};
-
-export default App;
+}
